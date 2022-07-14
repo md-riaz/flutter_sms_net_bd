@@ -8,6 +8,7 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -15,11 +16,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
       body: Column(
         children: [
-          TextFormField(),
-          TextFormField(),
+          TextFormField(
+            decoration: const InputDecoration(
+              hintText: 'Email',
+            ),
+          ),
+          TextFormField(
+            decoration: const InputDecoration(
+              hintText: 'Password',
+            ),
+          ),
           TextButton(
             onPressed: () async {},
             child: const Text('Register'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context)
+                  .pushNamedAndRemoveUntil('/login/', (route) => false);
+            },
+            child: const Text('Already have an account? Login'),
           ),
         ],
       ),
