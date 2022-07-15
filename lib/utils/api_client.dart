@@ -66,6 +66,16 @@ Future checkAuthentication() async {
   return false;
 }
 
+Future<void> addToken(Map<String, dynamic> response) async {
+  final prefs = await SharedPreferences.getInstance();
+
+  prefs.setString('token', response['token']);
+
+  prefs.setInt('userId', response['data']['user']['id']);
+  prefs.setString('userName', response['data']['user']['name']);
+  prefs.setString('userGroup', response['data']['user']['group']);
+}
+
 Future<void> removeToken() async {
   final prefs = await SharedPreferences.getInstance();
 

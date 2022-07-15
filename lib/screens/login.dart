@@ -1,7 +1,6 @@
 import 'dart:developer' as devtools show log;
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sms_net_bd/utils/api_client.dart';
 import 'package:sms_net_bd/utils/constants.dart';
 import 'package:sms_net_bd/widgets/form_text.dart';
@@ -47,14 +46,8 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       if (result['error'] == 0) {
-        // Obtain shared preferences.
-        final prefs = await SharedPreferences.getInstance();
         // Store the user data in shared preferences.
-        prefs.setString('token', result['token']);
-
-        prefs.setInt('userId', result['data']['user']['id']);
-        prefs.setString('userName', result['data']['user']['name']);
-        prefs.setString('userGroup', result['data']['user']['group']);
+        await addToken(result);
 
         navigator.pushReplacementNamed('/dashboard/');
       } else {
