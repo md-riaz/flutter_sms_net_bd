@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sms_net_bd/screens/login.dart';
+import 'package:sms_net_bd/utils/api_client.dart';
 import 'package:sms_net_bd/utils/constants.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -13,7 +13,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    onUnauthenticated();
+    checkAuth();
   }
 
   @override
@@ -21,14 +21,26 @@ class _SplashScreenState extends State<SplashScreen> {
     return const Scaffold(body: preloader);
   }
 
+  void checkAuth() async {
+    bool auth = await checkAuthentication();
+
+    if (auth) {
+      return onAuthenticated();
+    } else {
+      return onUnauthenticated();
+    }
+  }
+
   void onUnauthenticated() {
-    Future.delayed(const Duration(seconds: 1), () {
-      return Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(
-          builder: (context) => const LoginScreen(),
-        ),
-        (route) => false,
-      );
-    });
+    Navigator.of(context).pushNamedAndRemoveUntil('/login/', (route) => false);
+
+    return;
+  }
+
+  void onAuthenticated() {
+    Navigator.of(context)
+        .pushNamedAndRemoveUntil('/dashboard/', (route) => false);
+
+    return;
   }
 }
