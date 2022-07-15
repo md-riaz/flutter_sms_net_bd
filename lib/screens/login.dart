@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:sms_net_bd/screens/dashboard.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sms_net_bd/utils/api_client.dart';
 import 'package:sms_net_bd/utils/constants.dart';
-
-import '../utils/api_client.dart';
+import 'package:sms_net_bd/widgets/form_text.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -12,14 +12,85 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  bool _isLoading = false;
   late final TextEditingController _email;
   late final TextEditingController _password;
 
   @override
   void initState() {
-    _email = TextEditingController();
-    _password = TextEditingController();
+    _email = TextEditingController(text: 'riazmd581@gmail.com');
+    _password = TextEditingController(text: 'P@\$\$w0rd786*');
     super.initState();
+  }
+
+  Future<void> initLogin() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    final navigator = Navigator.of(context);
+
+    try {
+      final Map<String, dynamic> result = await sendRequest(
+        uri: '/user/login/',
+        type: 'POST',
+        body: {
+          'email': _email.text,
+          'password': _password.text,
+          'client_ip': '',
+          'api_key': appKey,
+          'origin': '',
+        },
+      );
+
+      if (result['error'] == 0) {
+        // Obtain shared preferences.
+        final prefs = await SharedPreferences.getInstance();
+        // Store the user data in shared preferences.
+        prefs.setString('token', result['token']);
+
+        prefs.setInt('userId', result['data']['user']['id']);
+        prefs.setString('userName', result['data']['user']['name']);
+        prefs.setString('userGroup', result['data']['user']['group']);
+
+        navigator.pushReplacementNamed('/dashboard/');
+      } else {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Error'),
+            content: const Text('Invalid email or password'),
+            actions: [
+              ElevatedButton(
+                child: const Text('OK'),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
+          ),
+        );
+      }
+    } catch (e) {
+      print(e);
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Error'),
+          content: const Text('Something went wrong'),
+          actions: [
+            ElevatedButton(
+              child: const Text('OK'),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ],
+        ),
+      );
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    return;
   }
 
   @override
@@ -46,45 +117,53 @@ class _LoginScreenState extends State<LoginScreen> {
               key: _formKey,
               child: Column(
                 children: [
-                  TextFormField(
+                  FormText(
                     controller: _email,
-                    enableSuggestions: false,
+                    suggestions: false,
                     autocorrect: false,
                     keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(
-                      labelText: 'Email',
-                    ),
+                    label: 'Email',
                     validator: (val) {
                       if (val!.isEmpty) {
                         return 'Please enter your email';
                       }
-                      if (!val.isValidEmail) {
+                      if (!val.isEmail) {
                         return 'Please enter a valid email';
                       }
 
                       return null;
                     },
                   ),
-                  TextFormField(
+                  formSpacer,
+                  FormText(
                     controller: _password,
                     obscureText: true,
-                    enableSuggestions: false,
+                    suggestions: false,
                     autocorrect: false,
-                    decoration: const InputDecoration(
-                      labelText: 'Password',
-                    ),
+                    label: 'Password',
                   ),
-                  const SizedBox(
-                    height: 20,
-                  ),
+                  formSpacer,
                   InkWell(
                     child: ElevatedButton(
                       onPressed: () async {
                         if (_formKey.currentState!.validate()) {
-                          await initLogin(context);
+                          await initLogin();
                         }
                       },
-                      child: const Text('Login'),
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+                        child: _isLoading
+                            ? const SizedBox(
+                                height: 16,
+                                width: 16,
+                                child: CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
+                                ),
+                              )
+                            : const Text('Login'),
+                      ),
                     ),
                   ),
                   const SizedBox(
@@ -104,61 +183,5 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
-  }
-
-  Future initLogin(BuildContext context) async {
-    try {
-      final Map result = await sendRequest(
-        uri: '/user/login/',
-        body: {
-          'email': _email.text,
-          'password': _password.text,
-          'client_ip': '',
-          'api_key': appKey,
-          'origin': '',
-        },
-      );
-
-      if (!mounted) return;
-
-      if (result['error'] == 0) {
-        return Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(
-            builder: (context) => const DashboardScreen(),
-          ),
-          (route) => false,
-        );
-      } else {
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Error'),
-            content: const Text('Invalid email or password'),
-            actions: [
-              ElevatedButton(
-                child: const Text('OK'),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ],
-          ),
-        );
-      }
-    } catch (e) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Error'),
-          content: const Text('Something went wrong'),
-          actions: [
-            ElevatedButton(
-              child: const Text('OK'),
-              onPressed: () => Navigator.pop(context),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return null;
   }
 }
