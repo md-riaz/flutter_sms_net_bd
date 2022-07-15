@@ -3,6 +3,7 @@ import 'dart:developer' as devtools show log;
 import 'package:flutter/material.dart';
 import 'package:sms_net_bd/utils/api_client.dart';
 import 'package:sms_net_bd/utils/constants.dart';
+import 'package:sms_net_bd/widgets/error_dialog.dart';
 import 'package:sms_net_bd/widgets/form_text.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -51,35 +52,17 @@ class _LoginScreenState extends State<LoginScreen> {
 
         navigator.pushReplacementNamed('/dashboard/');
       } else {
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Error'),
-            content: const Text('Invalid email or password'),
-            actions: [
-              ElevatedButton(
-                child: const Text('OK'),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ],
-          ),
+        if (!mounted) return;
+
+        await showErrorDialog(
+          context,
+          result['msg'],
         );
       }
     } catch (e) {
       devtools.log(e.toString());
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Error'),
-          content: const Text('Something went wrong'),
-          actions: [
-            ElevatedButton(
-              child: const Text('OK'),
-              onPressed: () => Navigator.pop(context),
-            ),
-          ],
-        ),
-      );
+
+      await showErrorDialog(context, 'Something went wrong.');
     }
 
     setState(() {
@@ -107,7 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SafeArea(
         child: Center(
           child: Container(
-            padding: const EdgeInsets.all(30),
+            padding: const EdgeInsets.all(20),
             constraints: const BoxConstraints(maxWidth: 500),
             child: Form(
               key: _formKey,
