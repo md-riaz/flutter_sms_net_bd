@@ -1,8 +1,11 @@
+import 'dart:developer' as devtools show log;
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sms_net_bd/utils/api_client.dart';
 import 'package:sms_net_bd/utils/constants.dart';
 import 'package:sms_net_bd/widgets/form_text.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -70,7 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
     } catch (e) {
-      print(e);
+      devtools.log(e.toString());
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -134,7 +137,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       return null;
                     },
                   ),
-                  formSpacer,
                   FormText(
                     controller: _password,
                     obscureText: true,
@@ -142,7 +144,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     autocorrect: false,
                     label: 'Password',
                   ),
-                  formSpacer,
                   InkWell(
                     child: ElevatedButton(
                       onPressed: () async {
@@ -171,8 +172,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   TextButton(
                     onPressed: () {
-                      Navigator.of(context).pushNamedAndRemoveUntil(
-                          '/register/', (route) => false);
+                      final Uri url = Uri.parse('https://sms.net.bd/signup/');
+                      _launchUrl(url); // Launch the URL.
                     },
                     child: const Text('Not registered yet? Sign up'),
                   ),
@@ -183,5 +184,11 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+}
+
+Future<void> _launchUrl(url) async {
+  if (!await launchUrl(url)) {
+    throw 'Could not launch $url';
   }
 }

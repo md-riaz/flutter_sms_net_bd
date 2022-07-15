@@ -26,8 +26,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                     if (!mounted) return;
 
-                    Navigator.of(context)
-                        .pushNamedAndRemoveUntil('/login/', (_) => false);
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                      '/login/',
+                      (_) => false,
+                    );
                   }
               }
             },
