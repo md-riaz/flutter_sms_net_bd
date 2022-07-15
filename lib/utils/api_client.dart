@@ -4,8 +4,11 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sms_net_bd/utils/constants.dart';
 
-Future sendRequest(
-    {required String uri, String? type = 'GET', dynamic body}) async {
+Future sendRequest({
+  required String uri,
+  String type = 'GET',
+  dynamic body,
+}) async {
   final client = http.Client();
 
   Map<String, String> headers = {};
@@ -59,15 +62,15 @@ Future checkAuthentication() async {
     return true;
   }
 
-  removeToken();
+  await removeToken();
   return false;
 }
 
-void removeToken() {
-  SharedPreferences.getInstance().then((prefs) {
-    prefs.remove('token');
-    prefs.remove('userId');
-    prefs.remove('userName');
-    prefs.remove('userGroup');
-  });
+Future<void> removeToken() async {
+  final prefs = await SharedPreferences.getInstance();
+
+  prefs.remove('token');
+  prefs.remove('userId');
+  prefs.remove('userName');
+  prefs.remove('userGroup');
 }
