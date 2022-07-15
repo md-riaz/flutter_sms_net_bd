@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sms_net_bd/utils/api_client.dart';
+import 'package:sms_net_bd/utils/routes.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -27,7 +28,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     if (!mounted) return;
 
                     Navigator.of(context).pushNamedAndRemoveUntil(
-                      '/login/',
+                      loginRoute,
                       (_) => false,
                     );
                   }

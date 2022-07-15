@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sms_net_bd/utils/api_client.dart';
 import 'package:sms_net_bd/utils/constants.dart';
+import 'package:sms_net_bd/utils/routes.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -32,14 +33,14 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void onUnauthenticated() {
-    Navigator.of(context).pushNamedAndRemoveUntil('/login/', (route) => false);
+    Navigator.of(context).pushNamedAndRemoveUntil(loginRoute, (route) => false);
 
     return;
   }
 
   void onAuthenticated() {
     Navigator.of(context)
-        .pushNamedAndRemoveUntil('/dashboard/', (route) => false);
+        .pushNamedAndRemoveUntil(dashboardRoute, (route) => false);
 
     return;
   }
