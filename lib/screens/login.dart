@@ -42,7 +42,7 @@ class _LoginScreenState extends State<LoginScreen> {
           'password': _password.text,
           'client_ip': '',
           'api_key': appKey,
-          'origin': '',
+          'origin': 'localhost',
         },
       );
 

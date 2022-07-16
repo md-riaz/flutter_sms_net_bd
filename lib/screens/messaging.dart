@@ -2,25 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:sms_net_bd/widgets/app_bar.dart';
 import 'package:sms_net_bd/widgets/app_drawer.dart';
 
-class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({Key? key}) : super(key: key);
+class MessagingScreen extends StatefulWidget {
+  const MessagingScreen({Key? key}) : super(key: key);
 
   @override
-  State<DashboardScreen> createState() => _DashboardScreenState();
+  State<MessagingScreen> createState() => _MessagingScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> {
+class _MessagingScreenState extends State<MessagingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBar(
         context,
-        title: 'Dashboard',
+        title: 'Messaging',
         mounted: mounted,
       ),
       drawer: appDrawer(context),
       body: const Center(
-        child: Text('Dashboard'),
+        child: Text('Messaging'),
       ),
     );
   }

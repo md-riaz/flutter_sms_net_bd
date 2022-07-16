@@ -51,6 +51,7 @@ Future<String?> getToken() async {
 // check authentication
 Future checkAuthentication() async {
   final token = await getToken();
+
   if (token == null) {
     return false;
   }
