@@ -5,8 +5,9 @@ void main() {
   runApp(MaterialApp(
     title: 'Alpha SMS',
     theme: ThemeData(
-      primarySwatch: Colors.blue,
+      primarySwatch: Colors.teal,
     ),
+    debugShowCheckedModeBanner: false,
     routes: Routes.list(),
     initialRoute: Routes.initScreen(),
   ));

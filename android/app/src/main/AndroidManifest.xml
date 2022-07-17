@@ -14,7 +14,7 @@
     </intent>
     </queries>
    <application
-        android:label="sms_net_bd"
+        android:label="Alpha SMS"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

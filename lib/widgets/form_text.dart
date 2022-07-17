@@ -14,6 +14,8 @@ class FormText extends StatelessWidget {
     this.validator,
     this.inputFormatters,
     this.maxLength,
+    this.maxLines = 1,
+    this.bordered = false,
   }) : super(key: key);
 
   final String label;
@@ -22,6 +24,8 @@ class FormText extends StatelessWidget {
   final bool autocorrect;
   final bool obscureText;
   final int? maxLength;
+  final int? maxLines;
+  final bool bordered;
   final TextInputType? keyboardType;
   final String? hintText;
   final String? Function(String?)? validator;
@@ -36,12 +40,14 @@ class FormText extends StatelessWidget {
         autocorrect: autocorrect,
         obscureText: obscureText,
         maxLength: maxLength,
+        maxLines: maxLines,
         keyboardType: keyboardType,
         inputFormatters: inputFormatters,
         validator: validator,
         decoration: InputDecoration(
           labelText: label,
           hintText: hintText,
+          border: bordered ? const OutlineInputBorder() : null,
         ),
       ),
     );
