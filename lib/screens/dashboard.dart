@@ -1,3 +1,5 @@
+import 'dart:developer' as developer show log;
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sms_net_bd/utils/api_client.dart';
@@ -32,13 +34,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   getBalance() async {
-    final resp = await sendRequest(uri: '/user/balance');
+    try {
+      final resp = await sendRequest(context: context, uri: '/user/balance');
 
-    setState(() {
-      balance = double.parse(resp['data']['balance']);
-      validity =
-          DateFormat.yMMMd().format(DateTime.parse(resp['data']['validity']));
-    });
+      if (resp != null) {
+        setState(() {
+          balance = double.parse(resp['data']['balance']);
+          validity = DateFormat.yMMMd().format(
+            DateTime.parse(resp['data']['validity']),
+          );
+        });
+      }
+    } catch (e) {
+      developer.log(e.toString());
+    }
   }
 
   @override

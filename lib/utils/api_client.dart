@@ -1,10 +1,14 @@
 import 'dart:convert';
+import 'dart:developer';
 
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sms_net_bd/utils/constants.dart';
+import 'package:sms_net_bd/utils/routes.dart';
 
 Future sendRequest({
+  required BuildContext context,
   required String uri,
   String type = 'GET',
   dynamic body,
@@ -23,22 +27,39 @@ Future sendRequest({
 
   http.Response? response;
 
-  if (type == 'POST') {
-    response = await client.post(
-      Uri.parse(url),
-      headers: headers,
-      body: body,
-    );
-  } else {
-    response = await client.get(
-      Uri.parse(url),
-      headers: headers,
-    );
+  try {
+    if (type == 'POST') {
+      response = await client.post(
+        Uri.parse(url),
+        headers: headers,
+        body: body,
+      );
+    } else {
+      response = await client.get(
+        Uri.parse(url),
+        headers: headers,
+      );
+    }
+
+    final Map<String, dynamic> result = jsonDecode(response.body);
+    log(result.toString());
+    if (result['error'] == 405) {
+      await removeToken();
+
+      Navigator.of(context)
+          .pushNamedAndRemoveUntil(loginRoute, (route) => false);
+    }
+
+    if (result['error'] == 0) {
+      return result;
+    }
+
+    return null;
+  } catch (e) {
+    log(e.toString());
+  } finally {
+    client.close();
   }
-
-  final Map<String, dynamic> result = jsonDecode(response.body);
-
-  return result;
 }
 
 // get token from shared preferences
@@ -49,13 +70,14 @@ Future<String?> getToken() async {
 }
 
 // check authentication
-Future checkAuthentication() async {
+Future checkAuthentication(BuildContext context) async {
   final token = await getToken();
 
   if (token == null) {
     return false;
   }
   final response = await sendRequest(
+    context: context,
     uri: '/user/balance/',
     type: 'GET',
   );

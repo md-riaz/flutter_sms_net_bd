@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-const baseAPI = 'http://api.dev.alpha.net.bd';
+const baseAPI = 'https://api.dev.alpha.net.bd';
 
 const preloader = Center(
   child: CircularProgressIndicator(

@@ -35,6 +35,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       final Map<String, dynamic> result = await sendRequest(
+        context: context,
         uri: '/user/login/',
         type: 'POST',
         body: {
@@ -91,6 +92,7 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Center(
           child: Container(
             padding: const EdgeInsets.all(20),
+            margin: const EdgeInsets.only(top: 50),
             constraints: const BoxConstraints(maxWidth: 500),
             child: Form(
               key: _formKey,
