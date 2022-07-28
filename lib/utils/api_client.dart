@@ -9,13 +9,16 @@ import 'package:sms_net_bd/utils/routes.dart';
 
 Future sendRequest({
   required BuildContext context,
+  required bool mounted,
   required String uri,
   String type = 'GET',
   dynamic body,
 }) async {
   final client = http.Client();
 
-  Map<String, String> headers = {};
+  Map<String, String> headers = {
+    'content-type': 'application/json',
+  };
 
   String? token = await getToken();
 
@@ -32,7 +35,7 @@ Future sendRequest({
       response = await client.post(
         Uri.parse(url),
         headers: headers,
-        body: body,
+        body: jsonEncode(body),
       );
     } else {
       response = await client.get(
@@ -46,6 +49,7 @@ Future sendRequest({
     if (result['error'] == 405) {
       await removeToken();
 
+      if (!mounted) return;
       Navigator.of(context)
           .pushNamedAndRemoveUntil(loginRoute, (route) => false);
     }
@@ -54,7 +58,7 @@ Future sendRequest({
       return result;
     }
 
-    return null;
+    return [];
   } catch (e) {
     log(e.toString());
   } finally {
@@ -70,7 +74,7 @@ Future<String?> getToken() async {
 }
 
 // check authentication
-Future checkAuthentication(BuildContext context) async {
+Future checkAuthentication(BuildContext context, bool mounted) async {
   final token = await getToken();
 
   if (token == null) {
@@ -78,6 +82,7 @@ Future checkAuthentication(BuildContext context) async {
   }
   final response = await sendRequest(
     context: context,
+    mounted: mounted,
     uri: '/user/balance/',
     type: 'GET',
   );
@@ -106,4 +111,32 @@ Future<void> removeToken() async {
   prefs.remove('userId');
   prefs.remove('userName');
   prefs.remove('userGroup');
+}
+
+Future<Map<String, dynamic>> sendMessage(
+  BuildContext context,
+  bool mounted,
+  String phone,
+  String message,
+) async {
+  Map<String, dynamic> response = await sendRequest(
+    context: context,
+    mounted: mounted,
+    uri: '/sendsms/',
+    type: 'POST',
+    body: {
+      'to': phone,
+      'msg': message,
+    },
+  );
+
+  return response;
+}
+
+void showSnackBar(BuildContext context, String text) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(text),
+    ),
+  );
 }

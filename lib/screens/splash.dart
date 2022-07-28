@@ -23,7 +23,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void checkAuth() async {
-    bool auth = await checkAuthentication(context);
+    bool auth = await checkAuthentication(context, mounted);
 
     if (auth) {
       return onAuthenticated();

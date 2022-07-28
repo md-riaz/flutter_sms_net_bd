@@ -6,6 +6,7 @@ void main() {
     title: 'Alpha SMS',
     theme: ThemeData(
       primarySwatch: Colors.teal,
+      scaffoldBackgroundColor: Colors.white,
     ),
     debugShowCheckedModeBanner: false,
     routes: Routes.list(),

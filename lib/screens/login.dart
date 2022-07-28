@@ -1,7 +1,6 @@
 import 'dart:developer' as devtools show log;
 
 import 'package:flutter/material.dart';
-import 'package:sms_net_bd/secrets/secret.dart';
 import 'package:sms_net_bd/utils/api_client.dart';
 import 'package:sms_net_bd/widgets/error_dialog.dart';
 import 'package:sms_net_bd/widgets/form_text.dart';
@@ -36,15 +35,10 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final Map<String, dynamic> result = await sendRequest(
         context: context,
+        mounted: mounted,
         uri: '/user/login/',
         type: 'POST',
-        body: {
-          'email': _email.text,
-          'password': _password.text,
-          'client_ip': '',
-          'api_key': appKey,
-          'origin': 'localhost',
-        },
+        body: {'email': _email.text, 'password': _password.text},
       );
 
       if (result['error'] == 0) {
@@ -87,12 +81,17 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Login'),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(30),
+          ),
+        ),
       ),
       body: SafeArea(
         child: Center(
           child: Container(
             padding: const EdgeInsets.all(20),
-            margin: const EdgeInsets.only(top: 50),
+            margin: const EdgeInsets.only(top: 30),
             constraints: const BoxConstraints(maxWidth: 500),
             child: Form(
               key: _formKey,
