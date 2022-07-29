@@ -5,7 +5,7 @@ const baseAPI =
 
 const preloader = Center(
   child: CircularProgressIndicator(
-    color: Colors.purple,
+    color: Colors.teal,
   ),
 );
 

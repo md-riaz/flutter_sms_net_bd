@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sms_net_bd/utils/routes.dart';
 
-final menu = {
+Map menu = {
   dashboardRoute: {
     'title': const Text('Dashboard'),
     'icon': const Icon(Icons.dashboard),

@@ -54,11 +54,7 @@ Future sendRequest({
           .pushNamedAndRemoveUntil(loginRoute, (route) => false);
     }
 
-    if (result['error'] == 0) {
-      return result;
-    }
-
-    return [];
+    return result;
   } catch (e) {
     log(e.toString());
   } finally {
@@ -119,7 +115,7 @@ Future<Map<String, dynamic>> sendMessage(
   String phone,
   String message,
 ) async {
-  Map<String, dynamic> response = await sendRequest(
+  final response = await sendRequest(
     context: context,
     mounted: mounted,
     uri: '/sendsms/',

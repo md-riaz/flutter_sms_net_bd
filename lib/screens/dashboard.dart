@@ -18,28 +18,24 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      color: Colors.grey.shade100,
-      child: SafeArea(
-        child: Scaffold(
-          backgroundColor: Colors.grey.shade100,
-          appBar: appBar(
-            context,
-            title: 'Dashboard',
-            mounted: mounted,
-          ),
-          drawer: appDrawer(context),
-          body: SingleChildScrollView(
-            child: Container(
-              margin: const EdgeInsets.only(top: 16),
-              child: Column(
-                children: const [
-                  BalanceCard(),
-                  formSpacer,
-                  QuickMsg(),
-                ],
-              ),
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: Colors.grey.shade100,
+        appBar: appBar(
+          context,
+          title: 'Dashboard',
+          mounted: mounted,
+        ),
+        drawer: appDrawer(context),
+        body: SingleChildScrollView(
+          child: Container(
+            margin: const EdgeInsets.all(16),
+            child: Column(
+              children: const [
+                BalanceCard(),
+                formSpacer,
+                QuickMsg(),
+              ],
             ),
           ),
         ),
@@ -64,7 +60,7 @@ class _BalanceCardState extends State<BalanceCard> {
       final resp = await sendRequest(
           context: context, mounted: mounted, uri: '/user/balance');
 
-      if (resp != null) {
+      if (resp['error'] == 0) {
         setState(() {
           balance = double.parse(resp['data']['balance']);
           validity = DateFormat.yMMMd().format(
@@ -143,19 +139,43 @@ class QuickMsg extends StatefulWidget {
 class _QuickMsgState extends State<QuickMsg> {
   final _formKey = GlobalKey<FormState>();
 
-  late final TextEditingController _to;
+  late final TextEditingController _phone;
   late final TextEditingController _body;
+
+  bool _isLoading = false;
 
   @override
   void initState() {
-    _to = TextEditingController();
+    _phone = TextEditingController();
     _body = TextEditingController();
     super.initState();
   }
 
+  Future<bool> _sendSMS({
+    required BuildContext context,
+    required String phone,
+    required String body,
+  }) async {
+    try {
+      setState(() => _isLoading = true);
+      Map<String, dynamic> response =
+          await sendMessage(context, mounted, phone, body);
+
+      if (!mounted) return false;
+
+      showSnackBar(context, response['msg']);
+      return response['error'] == 0;
+    } catch (e) {
+      developer.log(e.toString());
+      return false;
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
   @override
   void dispose() {
-    _to.dispose();
+    _phone.dispose();
     _body.dispose();
     super.dispose();
   }
@@ -171,9 +191,16 @@ class _QuickMsgState extends State<QuickMsg> {
             children: [
               FormText(
                 label: 'Mobile Number',
-                controller: _to,
+                controller: _phone,
                 keyboardType: TextInputType.number,
                 bordered: true,
+                validator: (val) {
+                  if (!val!.isPhoneNumber) {
+                    return 'Invalid Phone Number';
+                  }
+
+                  return null;
+                },
               ),
               FormText(
                 label: 'Message',
@@ -190,14 +217,29 @@ class _QuickMsgState extends State<QuickMsg> {
                     horizontal: 32,
                   ),
                 ),
-                child: const Text('Send'),
+                child: _isLoading
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          color: Colors.teal,
+                        ),
+                      )
+                    : const Text('Send',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        )),
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
-                    await _sendSMS(
+                    final sent = await _sendSMS(
                       context: context,
-                      to: _to.text,
+                      phone: _phone.text,
                       body: _body.text,
                     );
+
+                    if (sent) {
+                      _formKey.currentState?.reset();
+                    }
                   }
                 },
               ),
@@ -206,18 +248,5 @@ class _QuickMsgState extends State<QuickMsg> {
         ),
       ),
     );
-  }
-
-  Future _sendSMS({
-    required BuildContext context,
-    required String to,
-    required String body,
-  }) async {
-    Map<String, dynamic> response =
-        await sendMessage(context, mounted, to, body);
-
-    if (!mounted) return;
-
-    showSnackBar(context, response['msg']);
   }
 }

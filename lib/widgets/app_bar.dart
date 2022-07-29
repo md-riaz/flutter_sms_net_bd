@@ -12,11 +12,6 @@ AppBar appBar(
 }) {
   return AppBar(
     title: Text(title),
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.all(
-        Radius.circular(20),
-      ),
-    ),
     leading: showBackButton
         ? IconButton(
             icon: const Icon(Icons.arrow_back),
