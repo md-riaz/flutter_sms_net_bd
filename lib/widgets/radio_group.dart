@@ -3,9 +3,13 @@ import 'package:flutter/material.dart';
 class RadioGroup extends StatefulWidget {
   final List<Map> radioButtonValues;
   String selectedValue;
+  final Function(String) notifyParent;
 
   RadioGroup(
-      {Key? key, required this.radioButtonValues, required this.selectedValue})
+      {Key? key,
+      required this.radioButtonValues,
+      required this.selectedValue,
+      required this.notifyParent})
       : super(key: key);
 
   @override
@@ -14,35 +18,34 @@ class RadioGroup extends StatefulWidget {
 
 class _RadioGroupState extends State<RadioGroup> {
 // _handleRadioValueChange is a callback function that is called when the user selects a radio button.
-  _handleRadioValueChange(String? value) {
+  void _handleRadioValueChange(String? value) {
     setState(() {
       widget.selectedValue = value!;
+      widget.notifyParent(value);
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('Schedule SMS'),
-        ListTile(
-          leading: Radio<String>(
-            value: '0',
-            groupValue: widget.selectedValue,
-            onChanged: _handleRadioValueChange,
-          ),
-          title: const Text('Male'),
-        ),
-        ListTile(
-          leading: Radio<String>(
-            value: '1',
-            groupValue: widget.selectedValue,
-            onChanged: _handleRadioValueChange,
-          ),
-          title: const Text('Female'),
-        ),
-      ],
+      children: widget.radioButtonValues.map(
+        (item) {
+          return Row(
+            children: <Widget>[
+              Flexible(
+                child: RadioListTile<String>(
+                  value: item['value'],
+                  groupValue: widget.selectedValue,
+                  onChanged: _handleRadioValueChange,
+                  title: Text(item['label']),
+                ),
+              ),
+            ],
+          );
+        },
+      ).toList(),
     );
   }
 }

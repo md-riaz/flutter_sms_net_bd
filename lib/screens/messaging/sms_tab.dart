@@ -56,6 +56,10 @@ class _SMSTabState extends State<SMSTab> {
     super.initState();
   }
 
+  _changeScheduledSms(String value) {
+    scheduledSms = value;
+  }
+
   @override
   void dispose() {
     super.dispose();
@@ -153,7 +157,7 @@ class _SMSTabState extends State<SMSTab> {
                           bordered: true,
                         ),
                         Padding(
-                          padding: const EdgeInsets.all(25),
+                          padding: const EdgeInsets.all(8),
                           child: RadioGroup(
                             radioButtonValues: const [
                               {
@@ -165,9 +169,15 @@ class _SMSTabState extends State<SMSTab> {
                                 'label': 'Schedule',
                               }
                             ],
-                            selectedValue: '0',
+                            selectedValue: scheduledSms,
+                            notifyParent: _changeScheduledSms,
                           ),
                         ),
+                        ElevatedButton(
+                            onPressed: () {
+                              log(scheduledSms);
+                            },
+                            child: Text('Press Button'))
                       ],
                     ),
                   );
