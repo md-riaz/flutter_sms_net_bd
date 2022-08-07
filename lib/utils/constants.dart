@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 const baseAPI =
-    'https://smsapi.glitch.me'; // https://smsapi.glitch.me // https://sms-api-proxy.cyclic.app/
+    'sms-api-proxy.cyclic.app'; // https://smsapi.glitch.me // https://sms-api-proxy.cyclic.app/ // https://smsapi-proxy.herokuapp.com/
 
 const preloader = Center(
   child: CircularProgressIndicator(

@@ -12,7 +12,8 @@ Future sendRequest({
   required bool mounted,
   required String uri,
   String type = 'GET',
-  dynamic body,
+  Map<String, dynamic>? body,
+  Map<String, dynamic>? queryParameters,
 }) async {
   final client = http.Client();
 
@@ -26,20 +27,26 @@ Future sendRequest({
     headers['x-auth-token'] = token;
   }
 
-  final url = '$baseAPI$uri';
+  final url = Uri.https(
+    Uri.parse(baseAPI).toString(),
+    uri,
+    queryParameters,
+  );
 
   http.Response? response;
 
   try {
+    if (!mounted) return;
+
     if (type == 'POST') {
       response = await client.post(
-        Uri.parse(url),
+        url,
         headers: headers,
         body: jsonEncode(body),
       );
     } else {
       response = await client.get(
-        Uri.parse(url),
+        url,
         headers: headers,
       );
     }
@@ -49,7 +56,6 @@ Future sendRequest({
     if (result['error'] == 405) {
       await removeToken();
 
-      if (!mounted) return;
       Navigator.of(context)
           .pushNamedAndRemoveUntil(loginRoute, (route) => false);
     }
@@ -60,6 +66,8 @@ Future sendRequest({
   } finally {
     client.close();
   }
+
+  return {};
 }
 
 // get token from shared preferences

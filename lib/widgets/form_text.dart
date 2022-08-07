@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+//todo need to have placeholder option and hint text bottom
+
 class FormText extends StatelessWidget {
   const FormText({
     Key? key,
     required this.label,
-    required this.controller,
+    this.controller,
     this.suggestions = true,
     this.autocorrect = true,
     this.obscureText = false,
+    this.readOnly = false,
+    this.initialValue,
     this.keyboardType,
     this.hintText,
     this.validator,
@@ -16,19 +20,23 @@ class FormText extends StatelessWidget {
     this.maxLength,
     this.maxLines = 1,
     this.bordered = false,
+    this.onTap,
   }) : super(key: key);
 
   final String label;
-  final TextEditingController controller;
   final bool suggestions;
   final bool autocorrect;
   final bool obscureText;
+  final bool readOnly;
   final int? maxLength;
   final int? maxLines;
   final bool bordered;
+  final String? initialValue;
+  final TextEditingController? controller;
   final TextInputType? keyboardType;
   final String? hintText;
   final String? Function(String?)? validator;
+  final String? Function()? onTap;
   final List<TextInputFormatter>? inputFormatters;
 
   @override
@@ -39,16 +47,19 @@ class FormText extends StatelessWidget {
         controller: controller,
         autocorrect: autocorrect,
         obscureText: obscureText,
+        readOnly: readOnly,
         maxLength: maxLength,
         maxLines: maxLines,
         keyboardType: keyboardType,
         inputFormatters: inputFormatters,
         validator: validator,
+        onTap: onTap,
         decoration: InputDecoration(
           labelText: label,
           hintText: hintText,
           border: bordered ? const OutlineInputBorder() : null,
         ),
+        initialValue: initialValue,
       ),
     );
   }

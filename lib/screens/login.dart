@@ -33,7 +33,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final navigator = Navigator.of(context);
 
     try {
-      final Map<String, dynamic> result = await sendRequest(
+      final result = await sendRequest(
         context: context,
         mounted: mounted,
         uri: '/user/login/',
