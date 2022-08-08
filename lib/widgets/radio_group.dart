@@ -28,24 +28,25 @@ class _RadioGroupState extends State<RadioGroup> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: widget.radioButtonValues.map(
-        (item) {
-          return Row(
-            children: <Widget>[
-              Flexible(
+      children: [
+        const Text('Select an option'),
+        Row(
+          children: widget.radioButtonValues.map(
+            (item) {
+              return Expanded(
+                flex: 1,
                 child: RadioListTile<String>(
                   value: item['value'],
                   groupValue: widget.selectedValue,
                   onChanged: _handleRadioValueChange,
                   title: Text(item['label']),
                 ),
-              ),
-            ],
-          );
-        },
-      ).toList(),
+              );
+            },
+          ).toList(),
+        ),
+      ],
     );
   }
 }

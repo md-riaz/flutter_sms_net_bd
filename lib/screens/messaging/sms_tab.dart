@@ -174,10 +174,11 @@ class _SMSTabState extends State<SMSTab> {
                           ),
                         ),
                         ElevatedButton(
-                            onPressed: () {
-                              log(scheduledSms);
-                            },
-                            child: Text('Press Button'))
+                          onPressed: () {
+                            log(scheduledSms);
+                          },
+                          child: const Text('Press Button'),
+                        ),
                       ],
                     ),
                   );
