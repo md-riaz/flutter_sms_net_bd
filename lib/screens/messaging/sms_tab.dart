@@ -2,6 +2,8 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:sms_net_bd/screens/messaging/widgets/senderid_dropdown.dart';
+import 'package:sms_net_bd/screens/messaging/widgets/template_dropdown.dart';
 import 'package:sms_net_bd/services/groups.dart';
 import 'package:sms_net_bd/services/senderid.dart';
 import 'package:sms_net_bd/services/templates.dart';
@@ -18,6 +20,8 @@ class SMSTab extends StatefulWidget {
 
 class _SMSTabState extends State<SMSTab> {
   final GlobalKey _formKey = GlobalKey<FormState>();
+
+  late TextEditingController smsContent;
 
   var senderIds;
   var groupRecipients;
@@ -53,15 +57,21 @@ class _SMSTabState extends State<SMSTab> {
 
   @override
   void initState() {
+    smsContent = TextEditingController();
     super.initState();
   }
 
-  _changeScheduledSms(String value) {
+  void _changeScheduledSms(String value) {
     scheduledSms = value;
+  }
+
+  void _changeSMSContent(dynamic value) {
+    smsContent.text = value;
   }
 
   @override
   void dispose() {
+    smsContent.dispose();
     super.dispose();
   }
 
@@ -81,7 +91,6 @@ class _SMSTabState extends State<SMSTab> {
                 case ConnectionState.done:
                   log(snapshot.data.toString());
 
-                  buildSenderIdDropdown(snapshot.data['senderIdList']);
                   buildGroupRecipientsDropdown(snapshot.data['groups']);
                   buildTemplateDropdown(snapshot.data['templateList']);
 
@@ -89,70 +98,18 @@ class _SMSTabState extends State<SMSTab> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text('Sender ID'),
-                              DropdownButtonFormField(
-                                value: _selectedSenderId,
-                                // ignore: unnecessary_question_mark
-                                onChanged: (dynamic? newValue) {
-                                  setState(() => _selectedSenderId = newValue!);
-                                },
-                                items: senderIdDropdownItems,
-                              ),
-                            ],
-                          ),
+                        SenderIdDropdown(
+                          senderIdDropdown: snapshot.data['senderIdList'],
                         ),
                         formSpacer,
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text('Group Recipients'),
-                              DropdownButtonFormField(
-                                value: _selectedGroup,
-                                // ignore: unnecessary_question_mark
-                                onChanged: (dynamic? newValue) {
-                                  setState(() => _selectedGroup = newValue);
-                                },
-                                items: groupDropdownItems,
-                              ),
-                            ],
-                          ),
+                        TemplateDropdown(
+                          templateItems: snapshot.data['templateList'],
+                          notifyParent: _changeSMSContent,
                         ),
                         formSpacer,
-                        const FormText(
-                          label: 'Individual Recipient Numbers',
-                          hintText:
-                              'Enter one or more recipient numbers separated by commas',
-                          maxLines: 5,
-                          bordered: true,
-                        ),
-                        formSpacer,
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text('SMS Templates'),
-                              DropdownButtonFormField(
-                                value: _selectedTemplate,
-                                // ignore: unnecessary_question_mark
-                                onChanged: (dynamic? newValue) {
-                                  setState(() => _selectedTemplate = newValue);
-                                },
-                                items: templateDropdownItems,
-                              ),
-                            ],
-                          ),
-                        ),
-                        formSpacer,
-                        const FormText(
+                        FormText(
                           label: 'Enter SMS Content',
+                          controller: smsContent,
                           maxLines: 5,
                           bordered: true,
                         ),
