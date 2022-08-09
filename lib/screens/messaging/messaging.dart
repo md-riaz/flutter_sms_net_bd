@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:sms_net_bd/screens/messaging/bottom_nav.dart';
 import 'package:sms_net_bd/screens/messaging/scheduled_tab.dart';
 import 'package:sms_net_bd/screens/messaging/senderid_tab.dart';
 import 'package:sms_net_bd/screens/messaging/sms_tab.dart';
 import 'package:sms_net_bd/screens/messaging/templates_tab.dart';
+import 'package:sms_net_bd/screens/messaging/widgets/bottom_nav.dart';
 import 'package:sms_net_bd/widgets/app_bar.dart';
 import 'package:sms_net_bd/widgets/app_drawer.dart';
 
@@ -37,11 +37,15 @@ class _MessagingScreenState extends State<MessagingScreen> {
         index: currentIndex,
         children: screens,
       ),
-      bottomNavigationBar: appBottomBar(context, currentIndex, (index) {
-        setState(() {
-          currentIndex = index;
-        });
-      }),
+      bottomNavigationBar: appBottomBar(
+        context,
+        currentIndex,
+        (index) {
+          setState(() {
+            currentIndex = index;
+          });
+        },
+      ),
     );
   }
 }
