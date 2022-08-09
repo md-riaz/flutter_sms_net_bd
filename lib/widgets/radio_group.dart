@@ -3,13 +3,15 @@ import 'package:flutter/material.dart';
 class RadioGroup extends StatefulWidget {
   final List<Map> radioButtonValues;
   String selectedValue;
+  final String label;
   final Function(String) notifyParent;
 
   RadioGroup(
       {Key? key,
       required this.radioButtonValues,
       required this.selectedValue,
-      required this.notifyParent})
+      required this.notifyParent,
+      required this.label})
       : super(key: key);
 
   @override
@@ -30,13 +32,13 @@ class _RadioGroupState extends State<RadioGroup> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Select an option'),
+        Text(widget.label),
         Row(
           children: widget.radioButtonValues.map(
             (item) {
               return Expanded(
-                flex: 1,
                 child: RadioListTile<String>(
+                  contentPadding: const EdgeInsets.all(0),
                   value: item['value'],
                   groupValue: widget.selectedValue,
                   onChanged: _handleRadioValueChange,

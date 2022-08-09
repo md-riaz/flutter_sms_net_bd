@@ -4,6 +4,24 @@ import 'package:flutter/services.dart';
 //todo need to have placeholder option and hint text bottom
 
 class FormText extends StatelessWidget {
+  final String label;
+  final bool suggestions;
+  final bool autocorrect;
+  final bool obscureText;
+  final bool readOnly;
+  final int? maxLength;
+  final int? maxLines;
+  final bool bordered;
+  final String? initialValue;
+  final TextEditingController? controller;
+  final TextInputType? keyboardType;
+  final String? hintText;
+  final String? Function(String?)? validator;
+  final Function()? onTap;
+  final Function(String)? onChanged;
+  final List<TextInputFormatter>? inputFormatters;
+  final Icon? suffixIcon;
+
   const FormText({
     Key? key,
     required this.label,
@@ -21,23 +39,9 @@ class FormText extends StatelessWidget {
     this.maxLines = 1,
     this.bordered = false,
     this.onTap,
+    this.onChanged,
+    this.suffixIcon,
   }) : super(key: key);
-
-  final String label;
-  final bool suggestions;
-  final bool autocorrect;
-  final bool obscureText;
-  final bool readOnly;
-  final int? maxLength;
-  final int? maxLines;
-  final bool bordered;
-  final String? initialValue;
-  final TextEditingController? controller;
-  final TextInputType? keyboardType;
-  final String? hintText;
-  final String? Function(String?)? validator;
-  final String? Function()? onTap;
-  final List<TextInputFormatter>? inputFormatters;
 
   @override
   Widget build(BuildContext context) {
@@ -58,8 +62,10 @@ class FormText extends StatelessWidget {
           labelText: label,
           hintText: hintText,
           border: bordered ? const OutlineInputBorder() : null,
+          suffixIcon: suffixIcon,
         ),
         initialValue: initialValue,
+        onChanged: onChanged,
       ),
     );
   }

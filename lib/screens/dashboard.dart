@@ -158,8 +158,8 @@ class _QuickMsgState extends State<QuickMsg> {
   }) async {
     try {
       setState(() => _isLoading = true);
-      Map<String, dynamic> response =
-          await sendMessage(context, mounted, phone, body);
+      Map<String, dynamic> response = await sendMessage(
+          context: context, mounted: mounted, phone: phone, message: body);
 
       if (!mounted) return false;
 

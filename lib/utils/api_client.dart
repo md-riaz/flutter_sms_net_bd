@@ -117,21 +117,25 @@ Future<void> removeToken() async {
   prefs.remove('userGroup');
 }
 
-Future<Map<String, dynamic>> sendMessage(
-  BuildContext context,
-  bool mounted,
-  String phone,
-  String message,
-) async {
+Future<Map<String, dynamic>> sendMessage({
+  required BuildContext context,
+  required bool mounted,
+  String? senderID,
+  required String phone,
+  required String message,
+}) async {
+  Map<String, dynamic> body = {
+    'to': phone,
+    'msg': message,
+    'senderid': senderID,
+  };
+
   final response = await sendRequest(
     context: context,
     mounted: mounted,
     uri: '/sendsms/',
     type: 'POST',
-    body: {
-      'to': phone,
-      'msg': message,
-    },
+    body: body,
   );
 
   return response;

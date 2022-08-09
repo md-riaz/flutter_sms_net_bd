@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
 class SenderIdDropdown extends StatefulWidget {
-  const SenderIdDropdown({Key? key, required this.senderIdDropdown})
-      : super(key: key);
-
   final List senderIdDropdown;
+  final Function(String) onChanged;
+
+  const SenderIdDropdown(
+      {Key? key, required this.senderIdDropdown, required this.onChanged})
+      : super(key: key);
 
   @override
   State<SenderIdDropdown> createState() => _SenderIdDropdownState();
@@ -38,6 +40,11 @@ class _SenderIdDropdownState extends State<SenderIdDropdown> {
     super.initState();
   }
 
+  void _handleSenderIdChange(dynamic val) {
+    setState(() => selectedItem = val);
+    widget.onChanged(val.toString());
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -48,9 +55,7 @@ class _SenderIdDropdownState extends State<SenderIdDropdown> {
           const Text('Sender ID'),
           DropdownButtonFormField(
             value: selectedItem,
-            onChanged: (dynamic val) {
-              setState(() => selectedItem = val);
-            },
+            onChanged: _handleSenderIdChange,
             items: dropdownItems,
             hint: const Text('Default'),
           ),

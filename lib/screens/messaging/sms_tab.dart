@@ -7,9 +7,10 @@ import 'package:sms_net_bd/screens/messaging/widgets/template_dropdown.dart';
 import 'package:sms_net_bd/services/groups.dart';
 import 'package:sms_net_bd/services/senderid.dart';
 import 'package:sms_net_bd/services/templates.dart';
+import 'package:sms_net_bd/utils/api_client.dart';
 import 'package:sms_net_bd/utils/constants.dart';
+import 'package:sms_net_bd/widgets/datetime_formtext.dart';
 import 'package:sms_net_bd/widgets/form_text.dart';
-import 'package:sms_net_bd/widgets/radio_group.dart';
 
 class SMSTab extends StatefulWidget {
   const SMSTab({Key? key}) : super(key: key);
@@ -19,138 +20,33 @@ class SMSTab extends StatefulWidget {
 }
 
 class _SMSTabState extends State<SMSTab> {
-  final GlobalKey _formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
 
-  late TextEditingController smsContent;
-
-  var senderIds;
-  var groupRecipients;
-  var templates;
-
+  final TextEditingController recipientController = TextEditingController();
+  late TextEditingController smsContentController = TextEditingController();
+  String formatedRecipient = '';
   String? _selectedSenderId;
-  String? _selectedGroup;
-  String? _selectedTemplate;
-
-  List<DropdownMenuItem> senderIdDropdownItems = [
-    const DropdownMenuItem(
-      value: null,
-      child: Text('Default'),
-    ),
-  ];
-
-  List<DropdownMenuItem> groupDropdownItems = [
-    const DropdownMenuItem(
-      value: null,
-      child: Text('Select One'),
-    ),
-  ];
-
-  List<DropdownMenuItem> templateDropdownItems = [
-    const DropdownMenuItem(
-      value: null,
-      child: Text('Select One'),
-    ),
-  ];
-
-  // Default Radio Button Selected Item When App Starts.
-  String scheduledSms = '0';
 
   @override
   void initState() {
-    smsContent = TextEditingController();
     super.initState();
   }
 
-  void _changeScheduledSms(String value) {
-    scheduledSms = value;
+  void _formatRecipient(text) {
+    formatedRecipient =
+        text.toString().trim().split(' ').join(',').split('\n').join(',');
+    log(formatedRecipient);
+  }
+
+  void _selectSenderId(String val) {
+    _selectedSenderId = val;
   }
 
   void _changeSMSContent(dynamic value) {
-    smsContent.text = value;
+    smsContentController.text = value;
   }
 
-  @override
-  void dispose() {
-    smsContent.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: FutureBuilder<void>(
-            future: getPageData(),
-            builder: (BuildContext context, AsyncSnapshot snapshot) {
-              switch (snapshot.connectionState) {
-                case ConnectionState.waiting:
-                  return preloader;
-                case ConnectionState.done:
-                  log(snapshot.data.toString());
-
-                  buildGroupRecipientsDropdown(snapshot.data['groups']);
-                  buildTemplateDropdown(snapshot.data['templateList']);
-
-                  return SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SenderIdDropdown(
-                          senderIdDropdown: snapshot.data['senderIdList'],
-                        ),
-                        formSpacer,
-                        TemplateDropdown(
-                          templateItems: snapshot.data['templateList'],
-                          notifyParent: _changeSMSContent,
-                        ),
-                        formSpacer,
-                        FormText(
-                          label: 'Enter SMS Content',
-                          controller: smsContent,
-                          maxLines: 5,
-                          bordered: true,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8),
-                          child: RadioGroup(
-                            radioButtonValues: const [
-                              {
-                                'value': '0',
-                                'label': 'Send Now',
-                              },
-                              {
-                                'value': '1',
-                                'label': 'Schedule',
-                              }
-                            ],
-                            selectedValue: scheduledSms,
-                            notifyParent: _changeScheduledSms,
-                          ),
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            log(scheduledSms);
-                          },
-                          child: const Text('Press Button'),
-                        ),
-                      ],
-                    ),
-                  );
-
-                default:
-                  return const Text('Error');
-              }
-            },
-          ),
-        ),
-      ),
-    );
-  }
-
-  Future getPageData() async {
+  Future<Map> getPageData() async {
     final senderIdList = await getApprovedSenderIds(context, mounted);
     final groups = await getGroups(context, mounted);
     final templateList = await getTemplates(context, mounted);
@@ -164,36 +60,127 @@ class _SMSTabState extends State<SMSTab> {
     return data;
   }
 
-  buildSenderIdDropdown(data) {
-    data.forEach((item) {
-      senderIdDropdownItems.add(
-        DropdownMenuItem(
-          value: item['sender_id'],
-          child: Text(item['sender_id']),
-        ),
+  Future<bool> processSMSRequest({senderId, recipients, smsContent}) async {
+    try {
+      Map<String, dynamic> response = await sendMessage(
+        context: context,
+        mounted: mounted,
+        senderID: senderId,
+        phone: recipients,
+        message: smsContent,
       );
-    });
+
+      if (!mounted) return false;
+
+      showSnackBar(context, response['msg']);
+
+      return response['error'] == 0;
+    } catch (e) {
+      log(e.toString());
+      return false;
+    }
   }
 
-  buildGroupRecipientsDropdown(data) {
-    data?.forEach((item) {
-      groupDropdownItems.add(
-        DropdownMenuItem(
-          value: item['id'],
-          child: Text(item['group_name']),
-        ),
-      );
-    });
+  @override
+  void dispose() {
+    recipientController.dispose();
+    smsContentController.dispose();
+    super.dispose();
   }
 
-  buildTemplateDropdown(data) {
-    data?.forEach((item) {
-      templateDropdownItems.add(
-        DropdownMenuItem(
-          value: item['text'],
-          child: Text(item['name']),
-        ),
-      );
-    });
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        child: FutureBuilder<void>(
+            future: getPageData(),
+            builder: (BuildContext context, AsyncSnapshot snapshot) {
+              switch (snapshot.connectionState) {
+                case ConnectionState.waiting:
+                  return preloader;
+                case ConnectionState.done:
+                  return Form(
+                    key: _formKey,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SenderIdDropdown(
+                            senderIdDropdown: snapshot.data['senderIdList'],
+                            onChanged: _selectSenderId,
+                          ),
+                          formSpacer,
+                          FormText(
+                            label: 'Individual Recipient Numbers',
+                            controller: recipientController,
+                            hintText:
+                                'Enter one or more recipient numbers separated by commas',
+                            keyboardType: TextInputType.phone,
+                            onChanged: _formatRecipient,
+                            maxLines: 2,
+                            bordered: true,
+                          ),
+                          formSpacer,
+                          TemplateDropdown(
+                            templateItems: snapshot.data['templateList'],
+                            notifyParent: _changeSMSContent,
+                          ),
+                          formSpacer,
+                          FormText(
+                            label: 'Enter SMS Content',
+                            controller: smsContentController,
+                            validator: (value) {
+                              if (value!.isEmpty) {
+                                return 'Please enter some text';
+                              }
+                              return null;
+                            },
+                            maxLines: 3,
+                            bordered: true,
+                          ),
+                          const DateTimeFormText(),
+                          formSpacer,
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              minimumSize: const Size.fromHeight(40),
+                            ),
+                            onPressed: () async {
+                              if (_formKey.currentState!.validate()) {
+                                final processDone = await processSMSRequest(
+                                  senderId: _selectedSenderId,
+                                  recipients: formatedRecipient,
+                                  smsContent: smsContentController.text,
+                                );
+
+                                if (processDone) {
+                                  _formKey.currentState!.reset();
+                                  setState(() {});
+                                }
+                              }
+                            },
+                            child: const Text('Submit Request'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                default:
+                  return const Center(child: Text('Unknown error'));
+              }
+            }),
+      ),
+    );
   }
+
+  // buildGroupRecipientsDropdown(data) {
+  //   data?.forEach((item) {
+  //     groupDropdownItems.add(
+  //       DropdownMenuItem(
+  //         value: item['id'],
+  //         child: Text(item['group_name']),
+  //       ),
+  //     );
+  //   });
+  // }
 }
