@@ -35,26 +35,27 @@ class _TemplateTabState extends State<TemplateTab> {
       future: getTemplates(context, mounted),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          final data = snapshot.data;
+          final List? data = snapshot.data as List?;
 
           return SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: DataTable(
-              columns: const <DataColumn>[
-                DataColumn(
-                  label: Text(
-                    'Name',
-                    style: TextStyle(fontStyle: FontStyle.italic),
-                  ),
-                ),
-                DataColumn(
-                  label: Text(
-                    'Text',
-                    style: TextStyle(fontStyle: FontStyle.italic),
-                  ),
-                ),
+            child: Column(
+              children: [
+                ...data!.map((item) {
+                  return Card(
+                    child: ExpansionTile(
+                      title: Text(item['name']),
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.only(
+                              right: 16, bottom: 16, left: 16),
+                          child: Text(item['text']),
+                        ),
+                        // add more data that you want like this
+                      ],
+                    ),
+                  );
+                }),
               ],
-              rows: buildDataRows(data),
             ),
           );
         } else {

@@ -1,7 +1,7 @@
 import 'package:sms_net_bd/screens/dashboard.dart';
 import 'package:sms_net_bd/screens/login.dart';
 import 'package:sms_net_bd/screens/messaging/messaging.dart';
-import 'package:sms_net_bd/screens/phonebook.dart';
+import 'package:sms_net_bd/screens/phonebook/phonebook.dart';
 import 'package:sms_net_bd/screens/profile.dart';
 import 'package:sms_net_bd/screens/splash.dart';
 
