@@ -52,79 +52,106 @@ class BalanceCard extends StatefulWidget {
 }
 
 class _BalanceCardState extends State<BalanceCard> {
-  double balance = 0.00;
-  String validity = '';
-
   _getBalance() async {
+    Map<String, dynamic> data = {
+      'balance': 00.00,
+      'validity': null,
+    };
     try {
       final resp = await sendRequest(
           context: context, mounted: mounted, uri: '/user/balance');
 
       if (resp['error'] == 0) {
-        setState(() {
-          balance = double.parse(resp['data']['balance']);
-          validity = DateFormat.yMMMd().format(
+        data = {
+          'balance': double.parse(resp['data']['balance']),
+          'validity': DateFormat.yMMMd().format(
             DateTime.parse(resp['data']['validity']),
-          );
-        });
+          ),
+        };
       }
     } catch (e) {
       developer.log(e.toString());
     }
+
+    return data;
   }
 
   @override
   void initState() {
     super.initState();
-    _getBalance();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 25),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Colors.teal[400]!,
-            Colors.teal[600]!,
-            Colors.teal[500]!,
-          ],
-        ),
-        borderRadius: BorderRadius.circular(5),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          const Text(
-            'Current Balance',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 26.0,
-              fontWeight: FontWeight.bold,
+    return FutureBuilder(
+      future: _getBalance(),
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        Map<String, dynamic> data = snapshot.data;
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            image: const DecorationImage(
+              image: AssetImage('assets/images/card-bg-1.png'),
+              fit: BoxFit.cover,
             ),
+            borderRadius: BorderRadius.circular(5),
           ),
-          Text(
-            balance.toStringAsFixed(2),
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 50.0,
-              fontWeight: FontWeight.bold,
-            ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  const Text(
+                    'Current Balance',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  Text(
+                    data['balance'].toStringAsFixed(2),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 35.0,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Text(
+                    'Validity: ${data['validity'] != null ? data['validity'].toString() : ''}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14.0,
+                    ),
+                  ),
+                ],
+              ),
+              ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  shape: const CircleBorder(
+                    side: BorderSide(
+                      color: Colors.teal,
+                      width: 3,
+                    ),
+                  ),
+                  elevation: 0,
+                  primary: Colors.white,
+                  onPrimary: Colors.teal,
+                  padding: const EdgeInsets.all(10),
+                ),
+                child: const Padding(
+                  padding: EdgeInsets.all(4),
+                  child: Icon(Icons.add),
+                ),
+              ),
+            ],
           ),
-          Text(
-            'Validity: $validity',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 12.0,
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
@@ -209,39 +236,38 @@ class _QuickMsgState extends State<QuickMsg> {
                 maxLength: 1000,
                 maxLines: 5,
               ),
-              OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                  primary: Colors.teal[400],
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 18,
-                    horizontal: 32,
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(45),
                   ),
-                ),
-                child: _isLoading
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(
-                          color: Colors.teal,
-                        ),
-                      )
-                    : const Text('Send',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        )),
-                onPressed: () async {
-                  if (_formKey.currentState!.validate()) {
-                    final sent = await _sendSMS(
-                      context: context,
-                      phone: _phone.text,
-                      body: _body.text,
-                    );
+                  child: _isLoading
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            color: Colors.teal,
+                          ),
+                        )
+                      : const Text('Send',
+                          style: TextStyle(
+                            fontSize: 16,
+                          )),
+                  onPressed: () async {
+                    if (_formKey.currentState!.validate()) {
+                      final sent = await _sendSMS(
+                        context: context,
+                        phone: _phone.text,
+                        body: _body.text,
+                      );
 
-                    if (sent) {
-                      _formKey.currentState?.reset();
+                      if (sent) {
+                        _formKey.currentState?.reset();
+                      }
                     }
-                  }
-                },
+                  },
+                ),
               ),
             ],
           ),

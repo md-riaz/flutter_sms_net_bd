@@ -45,10 +45,27 @@ class _TemplateTabState extends State<TemplateTab> {
                     child: ExpansionTile(
                       title: Text(item['name']),
                       children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(
-                              right: 16, bottom: 16, left: 16),
-                          child: Text(item['text']),
+                        Column(
+                          children: [
+                            Padding(
+                              padding:
+                                  const EdgeInsets.only(right: 16, left: 16),
+                              child: Text(item['text']),
+                            ),
+                            ButtonBar(
+                              alignment: MainAxisAlignment.end,
+                              children: [
+                                TextButton(
+                                  child: const Icon(Icons.edit),
+                                  onPressed: () {},
+                                ),
+                                TextButton(
+                                  child: const Icon(Icons.delete),
+                                  onPressed: () {},
+                                ),
+                              ],
+                            )
+                          ],
                         ),
                         // add more data that you want like this
                       ],
