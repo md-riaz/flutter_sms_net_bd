@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'dart:developer';
 
+import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:sms_net_bd/screens/messaging/widgets/senderid_dropdown.dart';
 import 'package:sms_net_bd/screens/messaging/widgets/template_dropdown.dart';
@@ -49,10 +50,10 @@ class _SMSTabState extends State<SMSTab> {
     smsContentController.text = value;
   }
 
-  // keep a reference to your stream subscription
-  late StreamSubscription<List> dataSub;
+  // keep a reference to CancelableOperation
+  CancelableOperation? _myCancelableFuture;
 
-  Future<Map> getPageData() async {
+  Future<Map> reqPageData() async {
     final pageData = await Future.wait([
       getApprovedSenderIds(context, mounted),
       getGroups(context, mounted),
@@ -64,6 +65,17 @@ class _SMSTabState extends State<SMSTab> {
       'groups': pageData[1],
       'templateList': pageData[2],
     };
+
+    return data;
+  }
+
+  Future<Map> getPageData() async {
+    _myCancelableFuture = CancelableOperation.fromFuture(
+      reqPageData(),
+      onCancel: () => 'Future has been canceld',
+    );
+
+    final data = await _myCancelableFuture?.value;
 
     return data;
   }
@@ -93,7 +105,7 @@ class _SMSTabState extends State<SMSTab> {
   void dispose() {
     recipientController.dispose();
     smsContentController.dispose();
-
+    _myCancelableFuture?.cancel();
     super.dispose();
   }
 
