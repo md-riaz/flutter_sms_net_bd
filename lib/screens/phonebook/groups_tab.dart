@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter/material.dart';
 
 class GroupsTab extends StatefulWidget {
   const GroupsTab({Key? key}) : super(key: key);
@@ -12,7 +10,7 @@ class GroupsTab extends StatefulWidget {
 class _GroupsTabState extends State<GroupsTab> {
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return const Center(
       child: Text('GroupsTab'),
     );
   }
