@@ -1,4 +1,5 @@
 // sms tab
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
@@ -21,6 +22,7 @@ class SMSTab extends StatefulWidget {
 
 class _SMSTabState extends State<SMSTab> {
   final _formKey = GlobalKey<FormState>();
+  Future? pageFuture;
 
   final TextEditingController recipientController = TextEditingController();
   late TextEditingController smsContentController = TextEditingController();
@@ -29,6 +31,7 @@ class _SMSTabState extends State<SMSTab> {
 
   @override
   void initState() {
+    pageFuture = getPageData();
     super.initState();
   }
 
@@ -46,15 +49,20 @@ class _SMSTabState extends State<SMSTab> {
     smsContentController.text = value;
   }
 
+  // keep a reference to your stream subscription
+  late StreamSubscription<List> dataSub;
+
   Future<Map> getPageData() async {
-    final senderIdList = await getApprovedSenderIds(context, mounted);
-    final groups = await getGroups(context, mounted);
-    final templateList = await getTemplates(context, mounted);
+    final pageData = await Future.wait([
+      getApprovedSenderIds(context, mounted),
+      getGroups(context, mounted),
+      getTemplates(context, mounted),
+    ]);
 
     Map<String, dynamic> data = {
-      'senderIdList': senderIdList,
-      'groups': groups,
-      'templateList': templateList,
+      'senderIdList': pageData[0],
+      'groups': pageData[1],
+      'templateList': pageData[2],
     };
 
     return data;
@@ -85,6 +93,7 @@ class _SMSTabState extends State<SMSTab> {
   void dispose() {
     recipientController.dispose();
     smsContentController.dispose();
+
     super.dispose();
   }
 
@@ -94,79 +103,86 @@ class _SMSTabState extends State<SMSTab> {
       child: Container(
         padding: const EdgeInsets.all(16),
         child: FutureBuilder<void>(
-            future: getPageData(),
+            future: pageFuture,
             builder: (BuildContext context, AsyncSnapshot snapshot) {
               switch (snapshot.connectionState) {
                 case ConnectionState.waiting:
                   return preloader;
                 case ConnectionState.done:
-                  return Form(
-                    key: _formKey,
-                    child: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SenderIdDropdown(
-                            senderIdDropdown: snapshot.data['senderIdList'],
-                            onChanged: _selectSenderId,
-                          ),
-                          formSpacer,
-                          FormText(
-                            label: 'Individual Recipient Numbers',
-                            controller: recipientController,
-                            hintText:
-                                'Enter one or more recipient numbers separated by commas',
-                            keyboardType: TextInputType.phone,
-                            onChanged: _formatRecipient,
-                            maxLines: 2,
-                            bordered: true,
-                          ),
-                          formSpacer,
-                          TemplateDropdown(
-                            templateItems: snapshot.data['templateList'],
-                            notifyParent: _changeSMSContent,
-                          ),
-                          formSpacer,
-                          FormText(
-                            label: 'Enter SMS Content',
-                            controller: smsContentController,
-                            validator: (value) {
-                              if (value!.isEmpty) {
-                                return 'Please enter some text';
-                              }
-                              return null;
-                            },
-                            maxLines: 3,
-                            bordered: true,
-                          ),
-                          const DateTimeFormText(),
-                          formSpacer,
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              minimumSize: const Size.fromHeight(40),
-                            ),
-                            onPressed: () async {
-                              if (_formKey.currentState!.validate()) {
-                                final processDone = await processSMSRequest(
-                                  senderId: _selectedSenderId,
-                                  recipients: formatedRecipient,
-                                  smsContent: smsContentController.text,
-                                );
-
-                                if (processDone) {
-                                  _formKey.currentState!.reset();
-                                  setState(() {});
-                                }
-                              }
-                            },
-                            child: const Text('Submit Request'),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
                 default:
-                  return const Center(child: Text('Unknown error'));
+                  if (snapshot.hasError) {
+                    final error = snapshot.error;
+
+                    return Text('🥺 $error');
+                  } else if (snapshot.hasData) {
+                    return Form(
+                      key: _formKey,
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SenderIdDropdown(
+                              senderIdDropdown: snapshot.data['senderIdList'],
+                              onChanged: _selectSenderId,
+                            ),
+                            formSpacer,
+                            FormText(
+                              label: 'Individual Recipient Numbers',
+                              controller: recipientController,
+                              hintText:
+                                  'Enter one or more recipient numbers separated by commas',
+                              keyboardType: TextInputType.phone,
+                              onChanged: _formatRecipient,
+                              maxLines: 2,
+                              bordered: true,
+                            ),
+                            formSpacer,
+                            TemplateDropdown(
+                              templateItems: snapshot.data['templateList'],
+                              notifyParent: _changeSMSContent,
+                            ),
+                            formSpacer,
+                            FormText(
+                              label: 'Enter SMS Content',
+                              controller: smsContentController,
+                              validator: (value) {
+                                if (value!.isEmpty) {
+                                  return 'Please enter some text';
+                                }
+                                return null;
+                              },
+                              maxLines: 3,
+                              bordered: true,
+                            ),
+                            const DateTimeFormText(),
+                            formSpacer,
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                minimumSize: const Size.fromHeight(40),
+                              ),
+                              onPressed: () async {
+                                if (_formKey.currentState!.validate()) {
+                                  final processDone = await processSMSRequest(
+                                    senderId: _selectedSenderId,
+                                    recipients: formatedRecipient,
+                                    smsContent: smsContentController.text,
+                                  );
+
+                                  if (processDone) {
+                                    _formKey.currentState!.reset();
+                                    setState(() {});
+                                  }
+                                }
+                              },
+                              child: const Text('Submit Request'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }
+
+                  return const Center(child: Text('No Data'));
               }
             }),
       ),

@@ -52,8 +52,8 @@ class BalanceCard extends StatefulWidget {
 }
 
 class _BalanceCardState extends State<BalanceCard> {
-  _getBalance() async {
-    Map<String, dynamic> data = {
+  Future _getBalance() async {
+    Map<String, dynamic>? data = {
       'balance': 00.00,
       'validity': null,
     };
@@ -85,6 +85,10 @@ class _BalanceCardState extends State<BalanceCard> {
   Widget build(BuildContext context) {
     return FutureBuilder(
       future: _getBalance(),
+      initialData: const {
+        'balance': 00.00,
+        'validity': null,
+      },
       builder: (BuildContext context, AsyncSnapshot snapshot) {
         Map<String, dynamic> data = snapshot.data;
         return Container(
