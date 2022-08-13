@@ -3,14 +3,16 @@ import 'package:intl/intl.dart';
 import 'package:sms_net_bd/widgets/form_text.dart';
 
 class DateTimeFormText extends StatefulWidget {
-  const DateTimeFormText({Key? key}) : super(key: key);
+  final Function(String)? notifyParent;
+
+  const DateTimeFormText({Key? key, this.notifyParent}) : super(key: key);
 
   @override
   State<DateTimeFormText> createState() => _DateTimeFormTextState();
 }
 
 class _DateTimeFormTextState extends State<DateTimeFormText> {
-  final TextEditingController dateTimeController = TextEditingController();
+  final TextEditingController controller = TextEditingController();
 
   dateTimePickerWidget(BuildContext context) {
     return () {
@@ -39,8 +41,12 @@ class _DateTimeFormTextState extends State<DateTimeFormText> {
 
               setState(() {
                 // format dateTime as 09/08/2022 09:00 AM
-                dateTimeController.text =
-                    DateFormat('yyyy-MM-dd hh:mm:i').format(dateTime);
+                final date = DateFormat('yyyy-MM-dd HH:mm:ss').format(dateTime);
+                controller.text = date;
+
+                if (widget.notifyParent != null) {
+                  widget.notifyParent!(date);
+                }
               });
             }
           });
@@ -51,7 +57,7 @@ class _DateTimeFormTextState extends State<DateTimeFormText> {
 
   @override
   void dispose() {
-    dateTimeController.dispose();
+    controller.dispose();
     super.dispose();
   }
 
@@ -59,7 +65,7 @@ class _DateTimeFormTextState extends State<DateTimeFormText> {
   Widget build(BuildContext context) {
     return FormText(
       label: 'Schedule Date',
-      controller: dateTimeController,
+      controller: controller,
       bordered: true,
       suffixIcon: const Icon(Icons.calendar_today),
       readOnly: true,

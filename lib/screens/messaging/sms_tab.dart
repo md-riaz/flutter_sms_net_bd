@@ -25,9 +25,10 @@ class _SMSTabState extends State<SMSTab> {
   Future? pageFuture;
 
   final TextEditingController recipientController = TextEditingController();
-  late TextEditingController smsContentController = TextEditingController();
+  final TextEditingController smsContentController = TextEditingController();
   String formatedRecipient = '';
   String? _selectedSenderId;
+  String? _scheduledDate;
 
   @override
   void initState() {
@@ -49,6 +50,11 @@ class _SMSTabState extends State<SMSTab> {
     smsContentController.text = value;
   }
 
+  void _changeScheduledDate(String value) {
+    log('_changeScheduledDate: $value');
+    _scheduledDate = value;
+  }
+
   Future<Map> getPageData() async {
     final pageData = await Future.wait([
       getApprovedSenderIds(context, mounted),
@@ -65,7 +71,8 @@ class _SMSTabState extends State<SMSTab> {
     return data;
   }
 
-  Future<bool> processSMSRequest({senderId, recipients, smsContent}) async {
+  Future<bool> processSMSRequest(
+      {senderId, recipients, smsContent, String? schedule}) async {
     try {
       Map<String, dynamic> response = await sendMessage(
         context: context,
@@ -73,6 +80,7 @@ class _SMSTabState extends State<SMSTab> {
         senderID: senderId,
         phone: recipients,
         message: smsContent,
+        schedule: schedule,
       );
 
       if (!mounted) return false;
@@ -151,7 +159,9 @@ class _SMSTabState extends State<SMSTab> {
                               maxLines: 3,
                               bordered: true,
                             ),
-                            const DateTimeFormText(),
+                            DateTimeFormText(
+                              notifyParent: _changeScheduledDate,
+                            ),
                             formSpacer,
                             ElevatedButton(
                               style: ElevatedButton.styleFrom(
@@ -163,10 +173,12 @@ class _SMSTabState extends State<SMSTab> {
                                     senderId: _selectedSenderId,
                                     recipients: formatedRecipient,
                                     smsContent: smsContentController.text,
+                                    schedule: _scheduledDate,
                                   );
 
                                   if (processDone) {
                                     _formKey.currentState!.reset();
+                                    _scheduledDate = null;
                                     setState(() {});
                                   }
                                 }
@@ -185,15 +197,4 @@ class _SMSTabState extends State<SMSTab> {
       ),
     );
   }
-
-  // buildGroupRecipientsDropdown(data) {
-  //   data?.forEach((item) {
-  //     groupDropdownItems.add(
-  //       DropdownMenuItem(
-  //         value: item['id'],
-  //         child: Text(item['group_name']),
-  //       ),
-  //     );
-  //   });
-  // }
 }

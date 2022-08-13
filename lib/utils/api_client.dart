@@ -123,11 +123,13 @@ Future<Map<String, dynamic>> sendMessage({
   String? senderID,
   required String phone,
   required String message,
+  String? schedule,
 }) async {
   Map<String, dynamic> body = {
     'to': phone,
     'msg': message,
     'senderid': senderID,
+    'schedule': schedule,
   };
 
   final response = await sendRequest(
