@@ -93,7 +93,7 @@ class _ContactsTabState extends State<ContactsTab> {
                 dismissible: DismissiblePane(onDismissed: () {}),
 
                 // All actions are defined in the children parameter.
-                children: [
+                children: const [
                   // A SlidableAction can have an icon and/or a label.
                   SlidableAction(
                     onPressed: null,

@@ -52,11 +52,20 @@ class BalanceCard extends StatefulWidget {
 }
 
 class _BalanceCardState extends State<BalanceCard> {
+  late Future pageFuture;
+
+  @override
+  void initState() {
+    pageFuture = _getBalance();
+    super.initState();
+  }
+
   Future _getBalance() async {
-    Map<String, dynamic>? data = {
-      'balance': 00.00,
+    Map<String, dynamic> data = {
+      'balance': '0.00',
       'validity': null,
     };
+
     try {
       final resp = await sendRequest(
           context: context, mounted: mounted, uri: '/user/balance');
@@ -77,84 +86,89 @@ class _BalanceCardState extends State<BalanceCard> {
   }
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: _getBalance(),
-      initialData: const {
-        'balance': 00.00,
-        'validity': null,
-      },
+      future: pageFuture,
       builder: (BuildContext context, AsyncSnapshot snapshot) {
-        Map<String, dynamic> data = snapshot.data;
-        return Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(18),
-          decoration: BoxDecoration(
-            image: const DecorationImage(
-              image: AssetImage('assets/images/card-bg-1.png'),
-              fit: BoxFit.cover,
-            ),
-            borderRadius: BorderRadius.circular(5),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  const Text(
-                    'Current Balance',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18.0,
-                      fontWeight: FontWeight.w500,
-                    ),
+        switch (snapshot.connectionState) {
+          case ConnectionState.waiting:
+            return preloader;
+          case ConnectionState.done:
+          default:
+            if (snapshot.hasError) {
+              final error = snapshot.error;
+
+              return Text('🥺 $error');
+            } else if (snapshot.hasData) {
+              Map<String, dynamic> data = snapshot.data;
+              return Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  image: const DecorationImage(
+                    image: AssetImage('assets/images/card-bg-1.png'),
+                    fit: BoxFit.cover,
                   ),
-                  Text(
-                    data['balance'].toStringAsFixed(2),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 35.0,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  Text(
-                    'Validity: ${data['validity'] != null ? data['validity'].toString() : ''}',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 14.0,
-                    ),
-                  ),
-                ],
-              ),
-              ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  shape: const CircleBorder(
-                    side: BorderSide(
-                      color: Colors.teal,
-                      width: 3,
-                    ),
-                  ),
-                  elevation: 0,
-                  primary: Colors.white,
-                  onPrimary: Colors.teal,
-                  padding: const EdgeInsets.all(10),
+                  borderRadius: BorderRadius.circular(5),
                 ),
-                child: const Padding(
-                  padding: EdgeInsets.all(4),
-                  child: Icon(Icons.add),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        const Text(
+                          'Current Balance',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18.0,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        Text(
+                          data['balance'].toStringAsFixed(2),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 35.0,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Text(
+                          'Validity: ${data['validity'] != null ? data['validity'].toString() : ''}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14.0,
+                          ),
+                        ),
+                      ],
+                    ),
+                    ElevatedButton(
+                      onPressed: () {},
+                      style: ElevatedButton.styleFrom(
+                        shape: const CircleBorder(
+                          side: BorderSide(
+                            color: Colors.teal,
+                            width: 3,
+                          ),
+                        ),
+                        elevation: 0,
+                        primary: Colors.white,
+                        onPrimary: Colors.teal,
+                        padding: const EdgeInsets.all(10),
+                      ),
+                      child: const Padding(
+                        padding: EdgeInsets.all(4),
+                        child: Icon(Icons.add),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          ),
-        );
+              );
+            }
+
+            return const Center(child: Text('No Data'));
+        }
       },
     );
   }
