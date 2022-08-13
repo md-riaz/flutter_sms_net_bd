@@ -40,7 +40,7 @@ class _DateTimeFormTextState extends State<DateTimeFormText> {
               setState(() {
                 // format dateTime as 09/08/2022 09:00 AM
                 dateTimeController.text =
-                    '${DateFormat('dd/MM/yyyy').format(dateTime)} at ${DateFormat('hh:mm a').format(dateTime)}';
+                    DateFormat('yyyy-MM-dd hh:mm:i').format(dateTime);
               });
             }
           });
