@@ -58,7 +58,7 @@ class _SMSTabState extends State<SMSTab> {
   Future<Map> getPageData() async {
     final pageData = await Future.wait([
       getApprovedSenderIds(context, mounted),
-      getGroups(context, mounted),
+      getGroups(context, mounted, {}),
       getTemplates(context, mounted),
     ]);
 
@@ -136,6 +136,15 @@ class _SMSTabState extends State<SMSTab> {
                               controller: recipientController,
                               hintText:
                                   'Enter one or more recipient numbers separated by commas',
+                              validator: (val) {
+                                if (val!.isEmpty) {
+                                  return 'Recipient numbers are required';
+                                } else if (!val.isPhoneNumber) {
+                                  return 'Invalid phone number';
+                                }
+
+                                return null;
+                              },
                               keyboardType: TextInputType.phone,
                               onChanged: _formatRecipient,
                               maxLines: 2,

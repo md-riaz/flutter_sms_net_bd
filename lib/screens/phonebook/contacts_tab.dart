@@ -82,55 +82,57 @@ class _ContactsTabState extends State<ContactsTab> {
         itemBuilder: (BuildContext context, int index) {
           if (index < items.length) {
             final item = items[index];
+
             return Slidable(
               key: const ValueKey(0),
-              // The start action pane is the one at the left or the top side.
-              startActionPane: ActionPane(
-                // A motion is a widget used to control how the pane animates.
+
+              // The end action pane is the one at the right or the bottom side.
+              endActionPane: ActionPane(
                 motion: const ScrollMotion(),
-
-                // A pane can dismiss the Slidable.
-                dismissible: DismissiblePane(onDismissed: () {}),
-
-                // All actions are defined in the children parameter.
-                children: const [
-                  // A SlidableAction can have an icon and/or a label.
+                children: [
                   SlidableAction(
-                    onPressed: null,
-                    backgroundColor: Color(0xFFFE4A49),
+                    onPressed: (BuildContext context) {
+                      // show alert that edit page will come soon
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Edit'),
+                          content: const Text('Edit page will come soon'),
+                          actions: [
+                            ElevatedButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text('OK'),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    backgroundColor: Colors.blueGrey,
+                    foregroundColor: Colors.white,
+                    icon: Icons.edit,
+                    label: 'Edit',
+                  ),
+                  SlidableAction(
+                    onPressed: (BuildContext context) {
+                      // show alert that delete page will come soon
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Delete'),
+                          content: const Text('Delete page will come soon'),
+                          actions: [
+                            ElevatedButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text('OK'),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    backgroundColor: Colors.red,
                     foregroundColor: Colors.white,
                     icon: Icons.delete,
                     label: 'Delete',
-                  ),
-                  SlidableAction(
-                    onPressed: null,
-                    backgroundColor: Color(0xFF21B7CA),
-                    foregroundColor: Colors.white,
-                    icon: Icons.share,
-                    label: 'Share',
-                  ),
-                ],
-              ),
-
-              // The end action pane is the one at the right or the bottom side.
-              endActionPane: const ActionPane(
-                motion: ScrollMotion(),
-                children: [
-                  SlidableAction(
-                    // An action can be bigger than the others.
-                    flex: 2,
-                    onPressed: null,
-                    backgroundColor: Color(0xFF7BC043),
-                    foregroundColor: Colors.white,
-                    icon: Icons.archive,
-                    label: 'Archive',
-                  ),
-                  SlidableAction(
-                    onPressed: null,
-                    backgroundColor: Color(0xFF0392CF),
-                    foregroundColor: Colors.white,
-                    icon: Icons.save,
-                    label: 'Save',
                   ),
                 ],
               ),

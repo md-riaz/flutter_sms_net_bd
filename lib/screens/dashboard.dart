@@ -144,7 +144,27 @@ class _BalanceCardState extends State<BalanceCard> {
                       ],
                     ),
                     ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        // show alert that this feature is comming soon
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text('Coming Soon'),
+                              content:
+                                  const Text('This feature is comming soon'),
+                              actions: <Widget>[
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: const Text('OK'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
                       style: ElevatedButton.styleFrom(
                         shape: const CircleBorder(
                           side: BorderSide(
