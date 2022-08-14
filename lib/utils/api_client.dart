@@ -52,9 +52,11 @@ Future sendRequest({
     }
 
     final Map<String, dynamic> result = jsonDecode(response.body);
-    log(result.toString());
+
     if (result['error'] == 405) {
       await removeToken();
+
+      if (!mounted) return;
 
       Navigator.of(context)
           .pushNamedAndRemoveUntil(loginRoute, (route) => false);
@@ -117,6 +119,14 @@ Future<void> removeToken() async {
   prefs.remove('userGroup');
 }
 
+void logOut(BuildContext context, mounted) async {
+  await removeToken();
+
+  if (!mounted) return;
+
+  Navigator.of(context).pushNamedAndRemoveUntil(loginRoute, (route) => false);
+}
+
 Future<Map<String, dynamic>> sendMessage({
   required BuildContext context,
   required bool mounted,
@@ -143,10 +153,11 @@ Future<Map<String, dynamic>> sendMessage({
   return response;
 }
 
-void showSnackBar(BuildContext context, String text) {
+void showSnackBar(BuildContext context, String text, {Duration? duration}) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
       content: Text(text),
+      duration: duration ?? const Duration(seconds: 2),
     ),
   );
 }

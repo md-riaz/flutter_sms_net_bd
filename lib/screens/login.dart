@@ -2,6 +2,7 @@ import 'dart:developer' as devtools show log;
 
 import 'package:flutter/material.dart';
 import 'package:sms_net_bd/utils/api_client.dart';
+import 'package:sms_net_bd/utils/constants.dart';
 import 'package:sms_net_bd/widgets/error_dialog.dart';
 import 'package:sms_net_bd/widgets/form_text.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -121,6 +122,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     autocorrect: false,
                     label: 'Password',
                   ),
+                  formSpacer,
                   InkWell(
                     child: ElevatedButton(
                       onPressed: () async {
@@ -143,9 +145,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             : const Text('Login'),
                       ),
                     ),
-                  ),
-                  const SizedBox(
-                    height: 20,
                   ),
                   TextButton(
                     onPressed: () {

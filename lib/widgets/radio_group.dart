@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 
 class RadioGroup extends StatefulWidget {
   final List<Map> radioButtonValues;
-  String selectedValue;
+  final String? defaultSelected;
   final String label;
   final Function(String) notifyParent;
 
-  RadioGroup(
+  const RadioGroup(
       {Key? key,
       required this.radioButtonValues,
-      required this.selectedValue,
+      this.defaultSelected,
       required this.notifyParent,
       required this.label})
       : super(key: key);
@@ -19,10 +19,17 @@ class RadioGroup extends StatefulWidget {
 }
 
 class _RadioGroupState extends State<RadioGroup> {
-// _handleRadioValueChange is a callback function that is called when the user selects a radio button.
+  late String selectedValue;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedValue = widget.defaultSelected!;
+  }
+
   void _handleRadioValueChange(String? value) {
     setState(() {
-      widget.selectedValue = value!;
+      selectedValue = value!;
       widget.notifyParent(value);
     });
   }
@@ -40,7 +47,7 @@ class _RadioGroupState extends State<RadioGroup> {
                 child: RadioListTile<String>(
                   contentPadding: const EdgeInsets.all(0),
                   value: item['value'],
-                  groupValue: widget.selectedValue,
+                  groupValue: selectedValue,
                   onChanged: _handleRadioValueChange,
                   title: Text(item['label']),
                 ),

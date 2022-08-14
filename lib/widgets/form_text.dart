@@ -8,6 +8,7 @@ class FormText extends StatelessWidget {
   final bool suggestions;
   final bool autocorrect;
   final bool obscureText;
+  final AutovalidateMode? autovalidateMode;
   final bool readOnly;
   final int? maxLength;
   final int? maxLines;
@@ -41,10 +42,15 @@ class FormText extends StatelessWidget {
     this.onTap,
     this.onChanged,
     this.suffixIcon,
+    this.autovalidateMode,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    if (controller != null && initialValue != null) {
+      controller?.text = initialValue!;
+    }
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: TextFormField(
@@ -57,6 +63,7 @@ class FormText extends StatelessWidget {
         keyboardType: keyboardType,
         inputFormatters: inputFormatters,
         validator: validator,
+        autovalidateMode: autovalidateMode,
         onTap: onTap,
         decoration: InputDecoration(
           labelText: label,
@@ -64,7 +71,7 @@ class FormText extends StatelessWidget {
           border: bordered ? const OutlineInputBorder() : null,
           suffixIcon: suffixIcon,
         ),
-        initialValue: initialValue,
+        initialValue: controller == null ? initialValue : null,
         onChanged: onChanged,
       ),
     );

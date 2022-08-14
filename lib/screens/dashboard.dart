@@ -26,7 +26,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           title: 'Dashboard',
           mounted: mounted,
         ),
-        drawer: appDrawer(context),
+        drawer: appDrawer(context, mounted),
         body: SingleChildScrollView(
           child: Container(
             margin: const EdgeInsets.all(16),
@@ -101,88 +101,90 @@ class _BalanceCardState extends State<BalanceCard> {
               return Text('🥺 $error');
             } else if (snapshot.hasData) {
               Map<String, dynamic> data = snapshot.data;
-              return Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  image: const DecorationImage(
-                    image: AssetImage('assets/images/card-bg-1.png'),
-                    fit: BoxFit.cover,
+              return Card(
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    image: const DecorationImage(
+                      image: AssetImage('assets/images/card-bg-1.png'),
+                      fit: BoxFit.cover,
+                    ),
+                    borderRadius: BorderRadius.circular(5),
                   ),
-                  borderRadius: BorderRadius.circular(5),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        const Text(
-                          'Current Balance',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18.0,
-                            fontWeight: FontWeight.w500,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          const Text(
+                            'Current Balance',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
-                        ),
-                        Text(
-                          data['balance'].toStringAsFixed(2),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 35.0,
-                            fontWeight: FontWeight.w600,
+                          Text(
+                            data['balance'].toStringAsFixed(2),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 35.0,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                        ),
-                        Text(
-                          'Validity: ${data['validity'] != null ? data['validity'].toString() : ''}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 14.0,
+                          Text(
+                            'Validity: ${data['validity'] != null ? data['validity'].toString() : ''}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 14.0,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        // show alert that this feature is comming soon
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: const Text('Coming Soon'),
-                              content:
-                                  const Text('This feature is comming soon'),
-                              actions: <Widget>[
-                                ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: const Text('OK'),
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        shape: const CircleBorder(
-                          side: BorderSide(
-                            color: Colors.teal,
-                            width: 3,
-                          ),
-                        ),
-                        elevation: 0,
-                        primary: Colors.white,
-                        onPrimary: Colors.teal,
-                        padding: const EdgeInsets.all(10),
+                        ],
                       ),
-                      child: const Padding(
-                        padding: EdgeInsets.all(4),
-                        child: Icon(Icons.add),
+                      ElevatedButton(
+                        onPressed: () {
+                          // show alert that this feature is comming soon
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text('Coming Soon'),
+                                content:
+                                    const Text('This feature is comming soon'),
+                                actions: <Widget>[
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text('OK'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          shape: const CircleBorder(
+                            side: BorderSide(
+                              color: Colors.teal,
+                              width: 3,
+                            ),
+                          ),
+                          elevation: 0,
+                          primary: Colors.white,
+                          onPrimary: Colors.teal,
+                          padding: const EdgeInsets.all(10),
+                        ),
+                        child: const Padding(
+                          padding: EdgeInsets.all(4),
+                          child: Icon(Icons.add),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               );
             }

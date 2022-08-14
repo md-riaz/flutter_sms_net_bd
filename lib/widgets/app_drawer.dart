@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sms_net_bd/utils/api_client.dart';
 import 'package:sms_net_bd/utils/routes.dart';
 
 Map menu = {
@@ -20,7 +21,7 @@ Map menu = {
   },
 };
 
-Drawer appDrawer(BuildContext context) {
+Drawer appDrawer(BuildContext context, mounted) {
   return Drawer(
     child: ListView(
       children: [
@@ -48,7 +49,37 @@ Drawer appDrawer(BuildContext context) {
           leading: const Icon(Icons.exit_to_app),
           title: const Text('Log out'),
           onTap: () {
-            Navigator.of(context).pop();
+            showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                      title: const Text('Log out'),
+                      content: const Text('Are you sure you want to log out?'),
+                      actions: [
+                        ElevatedButton(
+                          child: const Text('Cancel'),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            elevation: 0,
+                            primary: Colors.white,
+                            onPrimary: Colors.teal,
+                            padding: const EdgeInsets.all(10),
+                          ),
+                        ),
+                        ElevatedButton(
+                          child: const Text('Log out'),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            logOut(context, mounted);
+                            Navigator.of(context).pushNamedAndRemoveUntil(
+                              loginRoute,
+                              (route) => false,
+                            );
+                          },
+                        ),
+                      ],
+                    ));
           },
         ),
       ],

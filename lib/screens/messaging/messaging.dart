@@ -32,7 +32,7 @@ class _MessagingScreenState extends State<MessagingScreen> {
         title: 'Messaging',
         mounted: mounted,
       ),
-      drawer: appDrawer(context),
+      drawer: appDrawer(context, mounted),
       body: screens[currentIndex],
       bottomNavigationBar: appBottomBar(
         context,
