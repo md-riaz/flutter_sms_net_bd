@@ -138,9 +138,12 @@ class _SMSTabState extends State<SMSTab> {
                               child: Text('Sender ID'),
                             ),
                             Padding(
-                              padding: const EdgeInsets.all(8.0),
+                              padding: const EdgeInsets.only(
+                                top: 16.0,
+                                left: 8.0,
+                              ),
                               child: SizedBox(
-                                height: 50,
+                                height: 30,
                                 child: ChoiceChipSelector(
                                     choiceList: snapshot.data['senderIdList'],
                                     onChanged: (String val) {
@@ -174,7 +177,6 @@ class _SMSTabState extends State<SMSTab> {
                               templateItems: snapshot.data['templateList'],
                               notifyParent: _changeSMSContent,
                             ),
-                            formSpacer,
                             FormText(
                               label: 'Enter SMS Content',
                               controller: smsContentController,
@@ -187,7 +189,6 @@ class _SMSTabState extends State<SMSTab> {
                               maxLines: 3,
                               bordered: false,
                             ),
-                            formSpacer,
                             DateTimeFormText(
                               notifyParent: _changeScheduledDate,
                             ),
