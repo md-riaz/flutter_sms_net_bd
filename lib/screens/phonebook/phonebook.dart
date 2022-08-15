@@ -30,7 +30,10 @@ class _PhonebookScreenState extends State<PhonebookScreen> {
         mounted: mounted,
       ),
       drawer: appDrawer(context, mounted),
-      body: screens[currentIndex],
+      body: IndexedStack(
+        index: currentIndex,
+        children: screens,
+      ),
       bottomNavigationBar: appBottomBar(
         context,
         currentIndex,

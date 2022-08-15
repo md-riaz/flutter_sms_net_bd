@@ -66,7 +66,7 @@ class _DateTimeFormTextState extends State<DateTimeFormText> {
     return FormText(
       label: 'Schedule Date',
       controller: controller,
-      bordered: true,
+      bordered: false,
       suffixIcon: const Icon(Icons.calendar_today),
       readOnly: true,
       onTap: dateTimePickerWidget(context),
