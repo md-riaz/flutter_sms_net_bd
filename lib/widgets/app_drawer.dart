@@ -56,7 +56,6 @@ Drawer appDrawer(BuildContext context, mounted) {
                       content: const Text('Are you sure you want to log out?'),
                       actions: [
                         ElevatedButton(
-                          child: const Text('Cancel'),
                           onPressed: () {
                             Navigator.of(context).pop();
                           },
@@ -66,6 +65,7 @@ Drawer appDrawer(BuildContext context, mounted) {
                             onPrimary: Colors.teal,
                             padding: const EdgeInsets.all(10),
                           ),
+                          child: const Text('Cancel'),
                         ),
                         ElevatedButton(
                           child: const Text('Log out'),

@@ -22,6 +22,13 @@ class FormText extends StatelessWidget {
   final Function(String)? onChanged;
   final List<TextInputFormatter>? inputFormatters;
   final Icon? suffixIcon;
+  final String? helperText;
+  final String? errorText;
+  final String? counterText;
+  final Widget? counter;
+  final bool? filled;
+  final Color? fillColor;
+  final bool? enabled;
 
   const FormText({
     Key? key,
@@ -43,6 +50,13 @@ class FormText extends StatelessWidget {
     this.onChanged,
     this.suffixIcon,
     this.autovalidateMode,
+    this.helperText,
+    this.errorText,
+    this.counterText,
+    this.counter,
+    this.filled,
+    this.fillColor,
+    this.enabled,
   }) : super(key: key);
 
   @override
@@ -66,10 +80,18 @@ class FormText extends StatelessWidget {
         autovalidateMode: autovalidateMode,
         onTap: onTap,
         decoration: InputDecoration(
+          enabled: enabled ?? true,
           labelText: label,
           hintText: hintText,
           border: bordered ? const OutlineInputBorder() : null,
           suffixIcon: suffixIcon,
+          helperText: helperText,
+          helperMaxLines: 3,
+          errorText: errorText,
+          counterText: counterText,
+          counter: counter,
+          filled: filled,
+          fillColor: fillColor,
         ),
         initialValue: controller == null ? initialValue : null,
         onChanged: onChanged,

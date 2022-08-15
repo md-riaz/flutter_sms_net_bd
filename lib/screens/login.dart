@@ -2,7 +2,6 @@ import 'dart:developer' as devtools show log;
 
 import 'package:flutter/material.dart';
 import 'package:sms_net_bd/utils/api_client.dart';
-import 'package:sms_net_bd/utils/constants.dart';
 import 'package:sms_net_bd/widgets/error_dialog.dart';
 import 'package:sms_net_bd/widgets/form_text.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -80,14 +79,6 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Login'),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(30),
-          ),
-        ),
-      ),
       body: SafeArea(
         child: Center(
           child: Container(
@@ -98,6 +89,12 @@ class _LoginScreenState extends State<LoginScreen> {
               key: _formKey,
               child: Column(
                 children: [
+                  // add logo image here
+                  Image.asset(
+                    'assets/images/light_logo.png',
+                    height: 100,
+                    width: 300,
+                  ),
                   FormText(
                     controller: _email,
                     suggestions: false,
@@ -122,27 +119,32 @@ class _LoginScreenState extends State<LoginScreen> {
                     autocorrect: false,
                     label: 'Password',
                   ),
-                  formSpacer,
-                  InkWell(
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        if (_formKey.currentState!.validate()) {
-                          await initLogin();
-                        }
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-                        child: _isLoading
-                            ? const SizedBox(
-                                height: 16,
-                                width: 16,
-                                child: CircularProgressIndicator(
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    Colors.white,
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: InkWell(
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          if (_formKey.currentState!.validate()) {
+                            await initLogin();
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: const Size.fromHeight(40),
+                        ),
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          child: _isLoading
+                              ? const SizedBox(
+                                  height: 16,
+                                  width: 16,
+                                  child: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
+                                    ),
                                   ),
-                                ),
-                              )
-                            : const Text('Login'),
+                                )
+                              : const Text('Login'),
+                        ),
                       ),
                     ),
                   ),

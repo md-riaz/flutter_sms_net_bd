@@ -16,42 +16,7 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey.shade100,
-      appBar: appBar(
-        context,
-        title: 'Profile',
-        mounted: mounted,
-      ),
-      drawer: appDrawer(context, mounted),
-      body: SingleChildScrollView(
-        child: Column(
-          children: const [ProfileCard(), PasswordCard()],
-        ),
-      ),
-    );
-  }
-}
-
-class ProfileCard extends StatefulWidget {
-  const ProfileCard({Key? key}) : super(key: key);
-
-  @override
-  State<ProfileCard> createState() => _ProfileCardState();
-}
-
-class _ProfileCardState extends State<ProfileCard> {
   Future? pageFuture;
-  final _formKey = GlobalKey<FormState>();
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController phoneController = TextEditingController();
-  final TextEditingController companyController = TextEditingController();
-  final TextEditingController addressController = TextEditingController();
-
-  bool isLoading = false;
 
   @override
   void initState() {
@@ -62,6 +27,75 @@ class _ProfileCardState extends State<ProfileCard> {
   Future getPageData() {
     return getProfile(context, mounted);
   }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey.shade100,
+      appBar: appBar(
+        context,
+        title: 'Profile',
+        mounted: mounted,
+      ),
+      drawer: appDrawer(context, mounted),
+      body: FutureBuilder(
+          future: pageFuture,
+          builder: (BuildContext context, AsyncSnapshot snapshot) {
+            switch (snapshot.connectionState) {
+              case ConnectionState.waiting:
+                return const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 32),
+                  child: preloader,
+                );
+              case ConnectionState.done:
+              default:
+                if (snapshot.hasError) {
+                  final error = snapshot.error;
+
+                  return Text('🥺 $error');
+                } else if (snapshot.hasData) {
+                  final Map data = snapshot.data;
+
+                  return SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        ProfileCard(
+                          profile: data,
+                        ),
+                        formSpacer,
+                        const PasswordCard(),
+                        formSpacer,
+                        SMSFooterCard(footer: data['footer']),
+                      ],
+                    ),
+                  );
+                }
+
+                return const Center(child: Text('No Data'));
+            }
+          }),
+    );
+  }
+}
+
+class ProfileCard extends StatefulWidget {
+  final Map profile;
+
+  const ProfileCard({Key? key, required this.profile}) : super(key: key);
+
+  @override
+  State<ProfileCard> createState() => _ProfileCardState();
+}
+
+class _ProfileCardState extends State<ProfileCard> {
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController companyController = TextEditingController();
+  final TextEditingController addressController = TextEditingController();
+
+  bool isLoading = false;
 
   Future handleProfileUpdate() async {
     try {
@@ -104,94 +138,70 @@ class _ProfileCardState extends State<ProfileCard> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: pageFuture,
-      builder: (BuildContext context, AsyncSnapshot snapshot) {
-        switch (snapshot.connectionState) {
-          case ConnectionState.waiting:
-            return const Padding(
-              padding: EdgeInsets.symmetric(vertical: 32),
-              child: preloader,
-            );
-          case ConnectionState.done:
-          default:
-            if (snapshot.hasError) {
-              final error = snapshot.error;
-
-              return Text('🥺 $error');
-            } else if (snapshot.hasData) {
-              final Map data = snapshot.data;
-
-              return Column(
-                children: [
-                  Card(
-                    child: Form(
-                      key: _formKey,
-                      child: Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Column(
-                          children: <Widget>[
-                            FormText(
-                              label: 'Name',
-                              initialValue: data['name'],
-                              controller: nameController,
-                            ),
-                            FormText(
-                              label: 'Email',
-                              initialValue: data['email'],
-                              controller: emailController,
-                            ),
-                            FormText(
-                              label: 'Phone',
-                              initialValue: data['phone'],
-                              controller: phoneController,
-                              readOnly: true,
-                            ),
-                            FormText(
-                              label: 'Company',
-                              initialValue: data['company'],
-                              controller: companyController,
-                            ),
-                            FormText(
-                              label: 'Address',
-                              initialValue: data['address'],
-                              controller: addressController,
-                            ),
-                            formSpacer,
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  if (_formKey.currentState!.validate()) {
-                                    handleProfileUpdate();
-                                  }
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  minimumSize: const Size.fromHeight(45),
-                                ),
-                                child: isLoading
-                                    ? const SizedBox(
-                                        width: 16,
-                                        height: 16,
-                                        child: CircularProgressIndicator(
-                                          color: Colors.white,
-                                        ),
-                                      )
-                                    : const Text('Update Profile'),
-                              ),
-                            ),
-                          ],
-                        ),
+    return Column(
+      children: [
+        Card(
+          child: Form(
+            key: _formKey,
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                children: <Widget>[
+                  FormText(
+                    label: 'Name',
+                    initialValue: widget.profile['name'],
+                    controller: nameController,
+                  ),
+                  FormText(
+                    label: 'Email',
+                    initialValue: widget.profile['email'],
+                    controller: emailController,
+                  ),
+                  FormText(
+                    label: 'Phone',
+                    initialValue: widget.profile['phone'],
+                    controller: phoneController,
+                    readOnly: true,
+                  ),
+                  FormText(
+                    label: 'Company',
+                    initialValue: widget.profile['company'],
+                    controller: companyController,
+                  ),
+                  FormText(
+                    label: 'Address',
+                    initialValue: widget.profile['address'],
+                    controller: addressController,
+                  ),
+                  formSpacer,
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          handleProfileUpdate();
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(45),
                       ),
+                      child: isLoading
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Text('Update Profile'),
                     ),
                   ),
                 ],
-              );
-            }
-
-            return const Center(child: Text('No Data'));
-        }
-      },
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -336,5 +346,112 @@ class _PasswordCardState extends State<PasswordCard> {
         ),
       ],
     );
+  }
+}
+
+class SMSFooterCard extends StatefulWidget {
+  final String? footer;
+
+  const SMSFooterCard({Key? key, this.footer}) : super(key: key);
+
+  @override
+  State<SMSFooterCard> createState() => _SMSFooterCardState();
+}
+
+class _SMSFooterCardState extends State<SMSFooterCard> {
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController smsFooterController = TextEditingController();
+  bool isLoading = false;
+
+  Future handleSMSFooterUpdate() async {
+    try {
+      setState(() => isLoading = true);
+
+      final Map<String, dynamic> data = {
+        'footer': smsFooterController.text,
+      };
+
+      final response = await sendRequest(
+        context: context,
+        mounted: mounted,
+        uri: '/user/update/footer/',
+        type: 'POST',
+        body: data,
+      );
+
+      if (!mounted) return;
+      showSnackBar(
+        context,
+        response['msg'],
+      );
+    } catch (e) {
+      log(e.toString());
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
+
+  @override
+  void dispose() {
+    smsFooterController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(children: [
+      const Padding(
+        padding: EdgeInsets.all(12.0),
+        child: Align(
+          alignment: Alignment.topLeft,
+          child: Text(
+            'SMS Footer',
+            style: TextStyle(fontSize: 18.0),
+          ),
+        ),
+      ),
+      Card(
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: <Widget>[
+                FormText(
+                  label: 'Footer Text',
+                  controller: smsFooterController,
+                  initialValue: widget.footer,
+                  helperText:
+                      'The footer text will be added to the end of your message. The most common use of an SMS footer is to include your Brand Name.',
+                ),
+                formSpacer,
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        handleSMSFooterUpdate();
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(45),
+                    ),
+                    child: isLoading
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Text('Save Footer'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    ]);
   }
 }
