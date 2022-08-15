@@ -1,6 +1,9 @@
 // sender id tab
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:intl/intl.dart';
 import 'package:sms_net_bd/services/senderid.dart';
+import 'package:sms_net_bd/utils/constants.dart';
 
 class SenderIdTab extends StatefulWidget {
   const SenderIdTab({Key? key}) : super(key: key);
@@ -10,58 +13,95 @@ class SenderIdTab extends StatefulWidget {
 }
 
 class _SenderIdTabState extends State<SenderIdTab> {
-  List<DataRow> buildDataRows(items) {
-    return <DataRow>[
-      ...items.map((item) {
-        return DataRow(
-          cells: <DataCell>[
-            DataCell(Text(item['sender_id'])),
-            DataCell(Text(item['status'])),
-            DataCell(Text(item['created'])),
-          ],
-        );
-      })
-    ];
+  Future? pageFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    pageFuture = getApprovedSenderIds(context, mounted);
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: getApprovedSenderIds(context, mounted),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          final data = snapshot.data;
+      future: pageFuture,
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.waiting:
+            return preloader;
+          case ConnectionState.done:
+          default:
+            if (snapshot.hasError) {
+              final error = snapshot.error;
 
-          return SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: DataTable(
-              columns: const <DataColumn>[
-                DataColumn(
-                  label: Text(
-                    'Sender ID',
-                    style: TextStyle(fontStyle: FontStyle.italic),
+              return Text('🥺 $error');
+            } else if (snapshot.hasData) {
+              final List? data = snapshot.data;
+
+              return SingleChildScrollView(
+                child: SlidableAutoCloseBehavior(
+                  child: ListView.separated(
+                    scrollDirection: Axis.vertical,
+                    shrinkWrap: true,
+                    itemCount: data!.length,
+                    separatorBuilder: (context, index) => const Divider(
+                      thickness: 1,
+                      height: 1,
+                    ),
+                    itemBuilder: (BuildContext context, int index) {
+                      return Slidable(
+                        key: ValueKey(
+                            data[index] != null ? data[index]['id'] as int : 0),
+                        endActionPane: ActionPane(
+                          motion: const ScrollMotion(),
+                          children: [
+                            SlidableAction(
+                              onPressed: (BuildContext context) {
+                                // show alert that delete page will come soon
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: const Text('Delete'),
+                                    content: const Text(
+                                        'Delete page will come soon'),
+                                    actions: [
+                                      ElevatedButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: const Text('OK'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                              backgroundColor: Colors.red,
+                              foregroundColor: Colors.white,
+                              icon: Icons.delete,
+                              label: 'Delete',
+                            ),
+                          ],
+                        ),
+                        child: ListTile(
+                          title: Text(data[index]!['sender_id']),
+                          subtitle: Text(data[index]!['status']),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.access_time),
+                              const SizedBox(width: 5),
+                              Text(
+                                DateFormat('dd MMM yyyy hh:mm a').format(
+                                    DateTime.parse(data[index]!['created'])),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
-                DataColumn(
-                  label: Text(
-                    'Status',
-                    style: TextStyle(fontStyle: FontStyle.italic),
-                  ),
-                ),
-                DataColumn(
-                  label: Text(
-                    'Requested',
-                    style: TextStyle(fontStyle: FontStyle.italic),
-                  ),
-                ),
-              ],
-              rows: buildDataRows(data),
-            ),
-          );
-        } else {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
+              );
+            }
+            return const Center(child: Text('No Data'));
         }
       },
     );
