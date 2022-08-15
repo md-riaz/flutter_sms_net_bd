@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sms_net_bd/screens/messaging/pages/add_template.dart';
 import 'package:sms_net_bd/screens/messaging/scheduled_tab.dart';
 import 'package:sms_net_bd/screens/messaging/senderid_tab.dart';
 import 'package:sms_net_bd/screens/messaging/sms_tab.dart';
@@ -34,6 +35,23 @@ class _MessagingScreenState extends State<MessagingScreen> {
       ),
       drawer: appDrawer(context, mounted),
       body: screens[currentIndex],
+      floatingActionButton: (currentIndex == 0 || currentIndex == 2)
+          ? null
+          : FloatingActionButton(
+              onPressed: () {
+                if (currentIndex == 1) {
+                  // request for sender id page
+                } else if (currentIndex == 3) {
+                  // add template page
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return const AddTemplate();
+                  }));
+                }
+              },
+              tooltip: 'Increment',
+              elevation: 2.0,
+              child: const Icon(Icons.add),
+            ),
       bottomNavigationBar: appBottomBar(
         context,
         currentIndex,

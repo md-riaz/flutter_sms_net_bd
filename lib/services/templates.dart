@@ -1,6 +1,6 @@
 import 'package:sms_net_bd/utils/api_client.dart';
 
-Future getTemplates(context, mounted) async {
+Future<List> getTemplates(context, mounted) async {
   final resp = await sendRequest(
     context: context,
     mounted: mounted,
@@ -12,4 +12,18 @@ Future getTemplates(context, mounted) async {
   }
 
   return [];
+}
+
+Future<bool> deleteTemplate(context, mounted, id) async {
+  final resp = await sendRequest(
+    context: context,
+    mounted: mounted,
+    uri: '/messaging/template/delete/$id',
+  );
+
+  if (resp['error'] == 0) {
+    return true;
+  }
+
+  return false;
 }
