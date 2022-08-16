@@ -83,7 +83,7 @@ class _SMSTabState extends State<SMSTab> {
         senderID: senderId,
         phone: recipients,
         message: smsContent,
-        schedule: schedule ?? '',
+        schedule: schedule,
       );
 
       if (!mounted) return false;

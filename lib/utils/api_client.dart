@@ -139,7 +139,7 @@ Future<Map<String, dynamic>> sendMessage({
     'to': phone,
     'msg': message,
     'sender_id': senderID,
-    'schedule': schedule,
+    'schedule': schedule ?? '',
   };
 
   final response = await sendRequest(
