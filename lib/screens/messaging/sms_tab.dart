@@ -50,7 +50,6 @@ class _SMSTabState extends State<SMSTab> {
   }
 
   void _changeScheduledDate(String value) {
-    log('_changeScheduledDate: $value');
     _scheduledDate = value;
   }
 
@@ -115,125 +114,126 @@ class _SMSTabState extends State<SMSTab> {
       child: Container(
         padding: const EdgeInsets.all(16),
         child: FutureBuilder<void>(
-            future: pageFuture,
-            builder: (BuildContext context, AsyncSnapshot snapshot) {
-              switch (snapshot.connectionState) {
-                case ConnectionState.waiting:
-                  return preloader;
-                case ConnectionState.done:
-                default:
-                  if (snapshot.hasError) {
-                    final error = snapshot.error;
+          future: pageFuture,
+          builder: (BuildContext context, AsyncSnapshot snapshot) {
+            switch (snapshot.connectionState) {
+              case ConnectionState.waiting:
+                return preloader;
+              case ConnectionState.done:
+              default:
+                if (snapshot.hasError) {
+                  final error = snapshot.error;
 
-                    return Text('🥺 $error');
-                  } else if (snapshot.hasData) {
-                    return Form(
-                      key: _formKey,
-                      child: SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 8.0),
-                              child: Text('Sender ID'),
+                  return Text('🥺 $error');
+                } else if (snapshot.hasData) {
+                  return Form(
+                    key: _formKey,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 8.0),
+                            child: Text('Sender ID'),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              top: 16.0,
+                              left: 8.0,
                             ),
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                top: 16.0,
-                                left: 8.0,
+                            child: SizedBox(
+                              height: 30,
+                              child: ChoiceChipSelector(
+                                  choiceList: snapshot.data['senderIdList'],
+                                  onChanged: (String val) {
+                                    _selectSenderId(val);
+                                  },
+                                  selectedChoice: null,
+                                  labelProperty: 'sender_id'),
+                            ),
+                          ),
+                          FormText(
+                            label: 'Individual Recipient Numbers',
+                            controller: recipientController,
+                            hintText:
+                                'Enter one or more recipient numbers separated by commas',
+                            validator: (val) {
+                              if (val!.isEmpty) {
+                                return 'Recipient numbers are required';
+                              } else if (!val.isPhoneNumber) {
+                                return 'Invalid phone number';
+                              }
+
+                              return null;
+                            },
+                            keyboardType: TextInputType.phone,
+                            onChanged: _formatRecipient,
+                            maxLines: 2,
+                            bordered: false,
+                          ),
+                          formSpacer,
+                          TemplateDropdown(
+                            templateItems: snapshot.data['templateList'],
+                            notifyParent: _changeSMSContent,
+                          ),
+                          FormText(
+                            label: 'Enter SMS Content',
+                            controller: smsContentController,
+                            validator: (value) {
+                              if (value!.isEmpty) {
+                                return 'Please enter some text';
+                              }
+                              return null;
+                            },
+                            maxLines: 3,
+                            bordered: false,
+                          ),
+                          DateTimeFormText(
+                            notifyParent: _changeScheduledDate,
+                          ),
+                          formSpacer,
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                minimumSize: const Size.fromHeight(40),
                               ),
-                              child: SizedBox(
-                                height: 30,
-                                child: ChoiceChipSelector(
-                                    choiceList: snapshot.data['senderIdList'],
-                                    onChanged: (String val) {
-                                      _selectSenderId(val);
-                                    },
-                                    selectedChoice: null,
-                                    labelProperty: 'sender_id'),
-                              ),
-                            ),
-                            FormText(
-                              label: 'Individual Recipient Numbers',
-                              controller: recipientController,
-                              hintText:
-                                  'Enter one or more recipient numbers separated by commas',
-                              validator: (val) {
-                                if (val!.isEmpty) {
-                                  return 'Recipient numbers are required';
-                                } else if (!val.isPhoneNumber) {
-                                  return 'Invalid phone number';
-                                }
+                              onPressed: () async {
+                                if (_formKey.currentState!.validate()) {
+                                  final processDone = await processSMSRequest(
+                                    senderId: _selectedSenderId,
+                                    recipients: formatedRecipient,
+                                    smsContent: smsContentController.text,
+                                    schedule: _scheduledDate,
+                                  );
 
-                                return null;
-                              },
-                              keyboardType: TextInputType.phone,
-                              onChanged: _formatRecipient,
-                              maxLines: 2,
-                              bordered: false,
-                            ),
-                            formSpacer,
-                            TemplateDropdown(
-                              templateItems: snapshot.data['templateList'],
-                              notifyParent: _changeSMSContent,
-                            ),
-                            FormText(
-                              label: 'Enter SMS Content',
-                              controller: smsContentController,
-                              validator: (value) {
-                                if (value!.isEmpty) {
-                                  return 'Please enter some text';
-                                }
-                                return null;
-                              },
-                              maxLines: 3,
-                              bordered: false,
-                            ),
-                            DateTimeFormText(
-                              notifyParent: _changeScheduledDate,
-                            ),
-                            formSpacer,
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  minimumSize: const Size.fromHeight(40),
-                                ),
-                                onPressed: () async {
-                                  if (_formKey.currentState!.validate()) {
-                                    final processDone = await processSMSRequest(
-                                      senderId: _selectedSenderId,
-                                      recipients: formatedRecipient,
-                                      smsContent: smsContentController.text,
-                                      schedule: _scheduledDate,
-                                    );
-
-                                    if (processDone) {
-                                      _formKey.currentState!.reset();
-                                      _scheduledDate = null;
-                                    }
+                                  if (processDone) {
+                                    _formKey.currentState!.reset();
+                                    _scheduledDate = null;
                                   }
-                                },
-                                child: isLoading
-                                    ? const SizedBox(
-                                        width: 16,
-                                        height: 16,
-                                        child: CircularProgressIndicator(
-                                          color: Colors.white,
-                                        ),
-                                      )
-                                    : const Text('Submit Request'),
-                              ),
+                                }
+                              },
+                              child: isLoading
+                                  ? const SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                  : const Text('Submit Request'),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                    );
-                  }
+                    ),
+                  );
+                }
 
-                  return const Center(child: Text('No Data'));
-              }
-            }),
+                return const Center(child: Text('No Data'));
+            }
+          },
+        ),
       ),
     );
   }

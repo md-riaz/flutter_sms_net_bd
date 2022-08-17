@@ -90,7 +90,8 @@ class _SenderIdTabState extends State<SenderIdTab> {
                               const SizedBox(width: 5),
                               Text(
                                 DateFormat('dd MMM yyyy, hh:mm a').format(
-                                    DateTime.parse(data[index]!['created'])),
+                                  DateTime.parse(data[index]!['created']),
+                                ),
                               ),
                             ],
                           ),

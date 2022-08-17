@@ -38,14 +38,22 @@ class _MessagingScreenState extends State<MessagingScreen> {
       floatingActionButton: (currentIndex == 0 || currentIndex == 2)
           ? null
           : FloatingActionButton(
-              onPressed: () {
+              onPressed: () async {
                 if (currentIndex == 1) {
                   // request for sender id page
                 } else if (currentIndex == 3) {
                   // add template page
-                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  final bool? temAdded = await Navigator.push(context,
+                      MaterialPageRoute(builder: (context) {
                     return const AddTemplate();
                   }));
+
+                  if (temAdded == true) {
+                    setState(() {
+                      currentIndex = 3;
+                      // todo kaj hocche na
+                    });
+                  }
                 }
               },
               tooltip: 'Increment',
