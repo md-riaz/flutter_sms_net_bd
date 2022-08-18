@@ -27,17 +27,15 @@ class _ScheduledTabState extends State<ScheduledTab> {
   Future<List> getScheduledSms() async {
     List data = [];
     try {
-      setState(() {
-        isLoading = true;
-      });
+      setState(() => isLoading = true);
 
       data = await getScheduledSMSList(context, mounted);
     } catch (e) {
       log(e.toString());
     } finally {
-      setState(() {
-        isLoading = false;
-      });
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
     }
     return data;
   }
@@ -54,6 +52,17 @@ class _ScheduledTabState extends State<ScheduledTab> {
         content: 'Are you sure you want to delete this?',
       ),
     );
+
+    if (confirm == true && mounted) {
+      setState(() => isLoading = true);
+
+      // delete scheduled sms
+      final del = await deleteScheduledSMS(context, mounted, delId);
+      if (del) {
+        // refresh page
+        pageFuture = getScheduledSms();
+      }
+    }
   }
 
   Future<void> onRefresh() {

@@ -13,3 +13,13 @@ Future<List> getScheduledSMSList(context, mounted) async {
 
   return [];
 }
+
+Future<bool> deleteScheduledSMS(context, mounted, id) async {
+  final resp = await sendRequest(
+    context: context,
+    mounted: mounted,
+    uri: '/messaging/schedule/delete/$id',
+  );
+
+  return resp['error'] == 0;
+}
