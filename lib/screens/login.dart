@@ -17,6 +17,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
   late final TextEditingController _email;
   late final TextEditingController _password;
+  bool? _touchId;
 
   @override
   void initState() {
@@ -118,6 +119,15 @@ class _LoginScreenState extends State<LoginScreen> {
                     suggestions: false,
                     autocorrect: false,
                     label: 'Password',
+                  ),
+                  CheckboxListTile(
+                    title: const Text('Touch ID Login'),
+                    value: false,
+                    onChanged: (val) {
+                      _touchId = val;
+                    },
+                    controlAffinity: ListTileControlAffinity.leading,
+                    contentPadding: const EdgeInsets.all(0),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
