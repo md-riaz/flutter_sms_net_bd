@@ -1,7 +1,11 @@
+import 'dart:convert';
 import 'dart:developer' as devtools show log;
+import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:sms_net_bd/utils/api_client.dart';
 import 'package:sms_net_bd/widgets/error_dialog.dart';
@@ -23,6 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
   // biometric authentication
   bool? _wantsTouchId = false;
   final LocalAuthentication _auth = LocalAuthentication();
+  final storage = const FlutterSecureStorage();
 
   @override
   void initState() {
@@ -38,27 +43,39 @@ class _LoginScreenState extends State<LoginScreen> {
 
     // fingerPrintLogin
 
-    if (_wantsTouchId == true) {
-      final bool canAuthenticateWithBiometrics = await _auth.canCheckBiometrics;
-      final bool isDeviceSupported = await _auth.isDeviceSupported();
+    if (_wantsTouchId == true && !kIsWeb) {
+      // check only for android
+      if (Platform.isAndroid) {
+        final bool canAuthenticateWithBiometrics =
+            await _auth.canCheckBiometrics;
+        final bool isDeviceSupported = await _auth.isDeviceSupported();
 
-      devtools.log('canAuthenticateWithBiometrics: ' +
-          canAuthenticateWithBiometrics.toString());
-      devtools.log('isDeviceSupported: ' + isDeviceSupported.toString());
+        if (canAuthenticateWithBiometrics && isDeviceSupported) {
+          try {
+            final bool didAuthenticate = await _auth.authenticate(
+              localizedReason: 'Authenticate to use for singing in next time',
+              options: const AuthenticationOptions(
+                biometricOnly: true,
+                stickyAuth: true,
+                useErrorDialogs: true,
+              ),
+            );
 
-      if (canAuthenticateWithBiometrics && isDeviceSupported) {
-        try {
-          final bool didAuthenticate = await _auth.authenticate(
-            localizedReason: 'Authenticate to use for singing in next time',
-            options: const AuthenticationOptions(
-              biometricOnly: true,
-              stickyAuth: true,
-              useErrorDialogs: true,
-            ),
-          );
-          devtools.log('authenticated: $didAuthenticate');
-        } on PlatformException catch (e) {
-          devtools.log(e.toString());
+            if (didAuthenticate) {
+              storage.write(
+                key: 'usingBiometric',
+                value: _wantsTouchId.toString(),
+              );
+
+              storage.write(
+                key: 'credentials',
+                value: base64Encode(
+                    utf8.encode('${_email.text}:${_password.text}')),
+              );
+            }
+          } on PlatformException catch (e) {
+            devtools.log(e.toString());
+          }
         }
       }
     }
