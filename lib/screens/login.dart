@@ -1,6 +1,8 @@
 import 'dart:developer' as devtools show log;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:sms_net_bd/utils/api_client.dart';
 import 'package:sms_net_bd/widgets/error_dialog.dart';
 import 'package:sms_net_bd/widgets/form_text.dart';
@@ -17,7 +19,10 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
   late final TextEditingController _email;
   late final TextEditingController _password;
-  bool? _touchId;
+
+  // biometric authentication
+  bool? _wantsTouchId = false;
+  final LocalAuthentication _auth = LocalAuthentication();
 
   @override
   void initState() {
@@ -30,6 +35,33 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() {
       _isLoading = true;
     });
+
+    // fingerPrintLogin
+
+    if (_wantsTouchId == true) {
+      final bool canAuthenticateWithBiometrics = await _auth.canCheckBiometrics;
+      final bool isDeviceSupported = await _auth.isDeviceSupported();
+
+      devtools.log('canAuthenticateWithBiometrics: ' +
+          canAuthenticateWithBiometrics.toString());
+      devtools.log('isDeviceSupported: ' + isDeviceSupported.toString());
+
+      if (canAuthenticateWithBiometrics && isDeviceSupported) {
+        try {
+          final bool didAuthenticate = await _auth.authenticate(
+            localizedReason: 'Authenticate to use for singing in next time',
+            options: const AuthenticationOptions(
+              biometricOnly: true,
+              stickyAuth: true,
+              useErrorDialogs: true,
+            ),
+          );
+          devtools.log('authenticated: $didAuthenticate');
+        } on PlatformException catch (e) {
+          devtools.log(e.toString());
+        }
+      }
+    }
 
     final navigator = Navigator.of(context);
 
@@ -122,9 +154,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   CheckboxListTile(
                     title: const Text('Touch ID Login'),
-                    value: false,
-                    onChanged: (val) {
-                      _touchId = val;
+                    value: _wantsTouchId,
+                    onChanged: (bool? val) {
+                      setState(() {
+                        _wantsTouchId = val ?? false;
+                      });
                     },
                     controlAffinity: ListTileControlAffinity.leading,
                     contentPadding: const EdgeInsets.all(0),

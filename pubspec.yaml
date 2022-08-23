@@ -38,6 +38,8 @@ dependencies:
   url_launcher: ^6.1.5
   intl: ^0.17.0
   flutter_slidable: ^2.0.0
+  flutter_secure_storage: ^6.0.0
+  local_auth: ^2.1.2
 
 dev_dependencies:
   flutter_test:

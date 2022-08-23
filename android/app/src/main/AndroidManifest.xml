@@ -2,6 +2,7 @@
     package="com.example.sms_net_bd">
     <!-- Provide required visibility configuration for API level 30 and above -->
      <uses-permission android:name="android.permission.INTERNET"/>
+      <uses-permission android:name="android.permission.USE_FINGERPRINT"/>
     <queries>
     <!-- If your app checks for SMS support -->
     <intent>
