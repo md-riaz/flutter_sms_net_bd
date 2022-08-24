@@ -28,12 +28,58 @@ class _LoginScreenState extends State<LoginScreen> {
   bool? _wantsTouchId = false;
   final LocalAuthentication _auth = LocalAuthentication();
   final storage = const FlutterSecureStorage();
+  bool canUseBiometrics = false;
+  bool isFingerprintSet = false;
 
   @override
   void initState() {
-    _email = TextEditingController(text: 'riazmd581@gmail.com');
-    _password = TextEditingController(text: 'P@\$\$w0rd786*');
+    _email = TextEditingController();
+    _password = TextEditingController();
+    isBiometricAvailable();
     super.initState();
+  }
+
+  Future<void> isBiometricAvailable() async {
+    bool isAvailable = false;
+    if (!kIsWeb && Platform.isAndroid) {
+      try {
+        final bool canAuthenticateWithBiometrics =
+            await _auth.canCheckBiometrics;
+        final bool isDeviceSupported = await _auth.isDeviceSupported();
+
+        if (canAuthenticateWithBiometrics && isDeviceSupported) {
+          isAvailable = true;
+        }
+      } catch (e) {
+        isAvailable = false;
+      } finally {
+        final usingBiometric = await storage.read(key: 'usingBiometric');
+
+        setState(() {
+          canUseBiometrics = isAvailable;
+          isFingerprintSet = usingBiometric == 'true';
+        });
+      }
+    }
+  }
+
+  Future<bool> authenticateWithBiometric() async {
+    bool didAuthenticate = false;
+
+    try {
+      didAuthenticate = await _auth.authenticate(
+        localizedReason: 'Authenticate with fingerprint',
+        options: const AuthenticationOptions(
+          biometricOnly: true,
+          stickyAuth: true,
+          useErrorDialogs: true,
+        ),
+      );
+    } on PlatformException catch (e) {
+      devtools.log(e.toString());
+    }
+
+    return didAuthenticate;
   }
 
   Future<void> initLogin() async {
@@ -43,44 +89,21 @@ class _LoginScreenState extends State<LoginScreen> {
 
     // fingerPrintLogin
 
-    if (_wantsTouchId == true && !kIsWeb) {
-      // check only for android
-      if (Platform.isAndroid) {
-        final bool canAuthenticateWithBiometrics =
-            await _auth.canCheckBiometrics;
-        final bool isDeviceSupported = await _auth.isDeviceSupported();
+    if (_wantsTouchId == true && canUseBiometrics) {
+      final bool didAuthenticate = await authenticateWithBiometric();
 
-        if (canAuthenticateWithBiometrics && isDeviceSupported) {
-          try {
-            final bool didAuthenticate = await _auth.authenticate(
-              localizedReason: 'Authenticate to use for singing in next time',
-              options: const AuthenticationOptions(
-                biometricOnly: true,
-                stickyAuth: true,
-                useErrorDialogs: true,
-              ),
-            );
+      if (didAuthenticate) {
+        storage.write(
+          key: 'usingBiometric',
+          value: _wantsTouchId.toString(),
+        );
 
-            if (didAuthenticate) {
-              storage.write(
-                key: 'usingBiometric',
-                value: _wantsTouchId.toString(),
-              );
-
-              storage.write(
-                key: 'credentials',
-                value: base64Encode(
-                    utf8.encode('${_email.text}:${_password.text}')),
-              );
-            }
-          } on PlatformException catch (e) {
-            devtools.log(e.toString());
-          }
-        }
+        storage.write(
+          key: 'credentials',
+          value: base64Encode(utf8.encode('${_email.text}:${_password.text}')),
+        );
       }
     }
-
-    final navigator = Navigator.of(context);
 
     try {
       final result = await sendRequest(
@@ -94,8 +117,8 @@ class _LoginScreenState extends State<LoginScreen> {
       if (result['error'] == 0) {
         // Store the user data in shared preferences.
         await addToken(result);
-
-        navigator.pushReplacementNamed('/dashboard/');
+        if (!mounted) return;
+        Navigator.of(context).pushReplacementNamed('/dashboard/');
       } else {
         if (!mounted) return;
 
@@ -107,14 +130,36 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (e) {
       devtools.log(e.toString());
 
+      if (!mounted) return;
+
       await showErrorDialog(context, 'Something went wrong.');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
 
-    setState(() {
-      _isLoading = false;
-    });
-
     return;
+  }
+
+  Future<void> handleFingerprintLogin() async {
+    final bool didAuthenticate = await authenticateWithBiometric();
+
+    if (didAuthenticate) {
+      String? credentials = await storage.read(key: 'credentials');
+
+      credentials = utf8.decode(base64Decode(credentials!));
+
+      final username = credentials.split(':')[0];
+      final password = credentials.split(':')[1];
+
+      setState(() {
+        _email.text = username;
+        _password.text = password;
+      });
+
+      initLogin();
+    }
   }
 
   @override
@@ -169,16 +214,35 @@ class _LoginScreenState extends State<LoginScreen> {
                     autocorrect: false,
                     label: 'Password',
                   ),
-                  CheckboxListTile(
-                    title: const Text('Touch ID Login'),
-                    value: _wantsTouchId,
-                    onChanged: (bool? val) {
-                      setState(() {
-                        _wantsTouchId = val ?? false;
-                      });
-                    },
-                    controlAffinity: ListTileControlAffinity.leading,
-                    contentPadding: const EdgeInsets.all(0),
+                  if (canUseBiometrics && !isFingerprintSet)
+                    CheckboxListTile(
+                      title: const Text('Touch ID Login'),
+                      value: _wantsTouchId,
+                      onChanged: (bool? val) {
+                        setState(() {
+                          _wantsTouchId = val ?? false;
+                        });
+                      },
+                      controlAffinity: ListTileControlAffinity.leading,
+                      contentPadding: const EdgeInsets.all(0),
+                    ),
+                  InkWell(
+                    onTap: handleFingerprintLogin,
+                    child: Container(
+                      decoration: BoxDecoration(
+                          color: Colors.transparent,
+                          border: Border.all(
+                            color: Colors.teal,
+                            width: 2,
+                          ),
+                          borderRadius: BorderRadius.circular(30)),
+                      padding: const EdgeInsets.all(5),
+                      margin: const EdgeInsets.symmetric(vertical: 10),
+                      child: const Icon(
+                        Icons.fingerprint,
+                        size: 35,
+                      ),
+                    ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
