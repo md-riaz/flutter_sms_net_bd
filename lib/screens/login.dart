@@ -68,11 +68,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       didAuthenticate = await _auth.authenticate(
-        localizedReason: 'Authenticate with fingerprint',
+        localizedReason: 'Authenticate to continue',
         options: const AuthenticationOptions(
           biometricOnly: true,
           stickyAuth: true,
-          useErrorDialogs: true,
         ),
       );
     } on PlatformException catch (e) {
@@ -82,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return didAuthenticate;
   }
 
-  Future<void> initLogin() async {
+  Future<void> initLogin(email, password) async {
     setState(() {
       _isLoading = true;
     });
@@ -111,7 +110,7 @@ class _LoginScreenState extends State<LoginScreen> {
         mounted: mounted,
         uri: '/user/login/',
         type: 'POST',
-        body: {'email': _email.text, 'password': _password.text},
+        body: {'email': email, 'password': password},
       );
 
       if (result['error'] == 0) {
@@ -150,15 +149,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
       credentials = utf8.decode(base64Decode(credentials!));
 
-      final username = credentials.split(':')[0];
+      final email = credentials.split(':')[0];
       final password = credentials.split(':')[1];
 
-      setState(() {
-        _email.text = username;
-        _password.text = password;
-      });
-
-      initLogin();
+      initLogin(email, password);
     }
   }
 
@@ -226,31 +220,13 @@ class _LoginScreenState extends State<LoginScreen> {
                       controlAffinity: ListTileControlAffinity.leading,
                       contentPadding: const EdgeInsets.all(0),
                     ),
-                  InkWell(
-                    onTap: handleFingerprintLogin,
-                    child: Container(
-                      decoration: BoxDecoration(
-                          color: Colors.transparent,
-                          border: Border.all(
-                            color: Colors.teal,
-                            width: 2,
-                          ),
-                          borderRadius: BorderRadius.circular(30)),
-                      padding: const EdgeInsets.all(5),
-                      margin: const EdgeInsets.symmetric(vertical: 10),
-                      child: const Icon(
-                        Icons.fingerprint,
-                        size: 35,
-                      ),
-                    ),
-                  ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: InkWell(
                       child: ElevatedButton(
                         onPressed: () async {
                           if (_formKey.currentState!.validate()) {
-                            await initLogin();
+                            await initLogin(_email.text, _password.text);
                           }
                         },
                         style: ElevatedButton.styleFrom(
@@ -273,6 +249,36 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
+                  if (isFingerprintSet)
+                    Column(
+                      children: [
+                        Container(
+                          margin: const EdgeInsets.symmetric(vertical: 5),
+                          child: const Text(
+                            'OR',
+                            style: TextStyle(color: Colors.grey, fontSize: 12),
+                          ),
+                        ),
+                        InkWell(
+                          onTap: handleFingerprintLogin,
+                          child: Container(
+                            decoration: BoxDecoration(
+                                color: Colors.transparent,
+                                border: Border.all(
+                                  color: Colors.teal,
+                                  width: 2,
+                                ),
+                                borderRadius: BorderRadius.circular(30)),
+                            padding: const EdgeInsets.all(5),
+                            margin: const EdgeInsets.symmetric(vertical: 10),
+                            child: const Icon(
+                              Icons.fingerprint,
+                              size: 35,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   TextButton(
                     onPressed: () {
                       final Uri url = Uri.parse('https://sms.net.bd/signup/');
