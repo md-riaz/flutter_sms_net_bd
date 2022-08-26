@@ -30,55 +30,53 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: Colors.grey.shade100,
-        appBar: appBar(
-          context,
-          title: 'Dashboard',
-          mounted: mounted,
-        ),
-        drawer: appDrawer(context, mounted),
-        body: FutureBuilder(
-          future: pageFuture,
-          builder: (BuildContext context, snapshot) {
-            switch (snapshot.connectionState) {
-              case ConnectionState.waiting:
-                return const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 32),
-                  child: preloader,
-                );
-              case ConnectionState.done:
-              default:
-                if (snapshot.hasError) {
-                  final error = snapshot.error;
+    return Scaffold(
+      backgroundColor: Colors.grey.shade100,
+      appBar: appBar(
+        context,
+        title: 'Dashboard',
+        mounted: mounted,
+      ),
+      drawer: const AppDrawer(),
+      body: FutureBuilder(
+        future: pageFuture,
+        builder: (BuildContext context, snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.waiting:
+              return const Padding(
+                padding: EdgeInsets.symmetric(vertical: 32),
+                child: preloader,
+              );
+            case ConnectionState.done:
+            default:
+              if (snapshot.hasError) {
+                final error = snapshot.error;
 
-                  return Text('🥺 $error');
-                } else if (snapshot.hasData) {
-                  final Map data = snapshot.data as Map;
+                return Text('🥺 $error');
+              } else if (snapshot.hasData) {
+                final Map data = snapshot.data as Map;
 
-                  return SingleChildScrollView(
-                    child: Container(
-                      margin: const EdgeInsets.all(16),
-                      child: Column(
-                        children: [
-                          TopStats(
-                            stats: data['dashboard']['statistics'],
-                          ),
-                          formSpacer,
-                          BalanceCard(data: data['balance']),
-                          formSpacer,
-                          const QuickMsg(),
-                        ],
-                      ),
+                return SingleChildScrollView(
+                  child: Container(
+                    margin: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        TopStats(
+                          stats: data['dashboard']['statistics'],
+                        ),
+                        formSpacer,
+                        BalanceCard(data: data['balance']),
+                        formSpacer,
+                        const QuickMsg(),
+                      ],
                     ),
-                  );
-                }
+                  ),
+                );
+              }
 
-                return const Center(child: Text('No Data'));
-            }
-          },
-        ),
+              return const Center(child: Text('No Data'));
+          }
+        },
       ),
     );
   }

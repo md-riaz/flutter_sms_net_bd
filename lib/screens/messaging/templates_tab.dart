@@ -1,5 +1,6 @@
 // templates tab
 import 'package:flutter/material.dart';
+import 'package:sms_net_bd/screens/messaging/pages/template_form.dart';
 import 'package:sms_net_bd/services/templates.dart';
 import 'package:sms_net_bd/utils/constants.dart';
 import 'package:sms_net_bd/widgets/confirmation.dart';
@@ -64,6 +65,26 @@ class _TemplateTabState extends State<TemplateTab> {
     await getPageData();
   }
 
+  Future handleEdit(item) async {
+    final bool? updated =
+        await Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return TemplateForm(
+        title: 'Edit Template',
+        tempId: item['id'],
+        tempName: item['name'],
+        tempBody: item['text'],
+      );
+    }));
+
+    if (updated == true) {
+      setState(() {
+        isLoading = true;
+        templates = [];
+        getPageData();
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
@@ -106,7 +127,7 @@ class _TemplateTabState extends State<TemplateTab> {
                       buttonPadding: const EdgeInsets.all(0),
                       children: [
                         TextButton.icon(
-                          onPressed: () {},
+                          onPressed: () => handleEdit(item),
                           icon: const Icon(Icons.edit),
                           label: const Text(
                             'Edit',
@@ -120,9 +141,7 @@ class _TemplateTabState extends State<TemplateTab> {
                           thickness: 0.5,
                         ),
                         TextButton.icon(
-                          onPressed: () {
-                            handleDelete(item);
-                          },
+                          onPressed: () => handleDelete(item),
                           icon: const Icon(
                             Icons.delete,
                             color: Colors.red,

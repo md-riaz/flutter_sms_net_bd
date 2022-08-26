@@ -168,126 +168,124 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            margin: const EdgeInsets.only(top: 30),
-            constraints: const BoxConstraints(maxWidth: 500),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  // add logo image here
-                  Image.asset(
-                    'assets/images/light_logo.png',
-                    height: 100,
-                    width: 300,
-                  ),
-                  FormText(
-                    controller: _email,
-                    suggestions: false,
-                    autocorrect: false,
-                    keyboardType: TextInputType.emailAddress,
-                    label: 'Email',
-                    validator: (val) {
-                      if (val!.isEmpty) {
-                        return 'Please enter your email';
-                      }
-                      if (!val.isEmail) {
-                        return 'Please enter a valid email';
-                      }
+      body: SingleChildScrollView(
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          margin: const EdgeInsets.only(top: 30),
+          constraints: const BoxConstraints(maxWidth: 500),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                // add logo image here
+                Image.asset(
+                  'assets/images/light_logo.png',
+                  height: 100,
+                  width: 300,
+                ),
+                FormText(
+                  controller: _email,
+                  suggestions: false,
+                  autocorrect: false,
+                  keyboardType: TextInputType.emailAddress,
+                  label: 'Email',
+                  validator: (val) {
+                    if (val!.isEmpty) {
+                      return 'Please enter your email';
+                    }
+                    if (!val.isEmail) {
+                      return 'Please enter a valid email';
+                    }
 
-                      return null;
+                    return null;
+                  },
+                ),
+                FormText(
+                  controller: _password,
+                  obscureText: true,
+                  suggestions: false,
+                  autocorrect: false,
+                  label: 'Password',
+                ),
+                if (canUseBiometrics && !isFingerprintSet)
+                  CheckboxListTile(
+                    title: const Text('Touch ID Login'),
+                    value: _wantsTouchId,
+                    onChanged: (bool? val) {
+                      setState(() {
+                        _wantsTouchId = val ?? false;
+                      });
                     },
+                    controlAffinity: ListTileControlAffinity.leading,
+                    contentPadding: const EdgeInsets.all(0),
                   ),
-                  FormText(
-                    controller: _password,
-                    obscureText: true,
-                    suggestions: false,
-                    autocorrect: false,
-                    label: 'Password',
-                  ),
-                  if (canUseBiometrics && !isFingerprintSet)
-                    CheckboxListTile(
-                      title: const Text('Touch ID Login'),
-                      value: _wantsTouchId,
-                      onChanged: (bool? val) {
-                        setState(() {
-                          _wantsTouchId = val ?? false;
-                        });
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: InkWell(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        if (_formKey.currentState!.validate()) {
+                          await initLogin(_email.text, _password.text);
+                        }
                       },
-                      controlAffinity: ListTileControlAffinity.leading,
-                      contentPadding: const EdgeInsets.all(0),
-                    ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: InkWell(
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          if (_formKey.currentState!.validate()) {
-                            await initLogin(_email.text, _password.text);
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: const Size.fromHeight(40),
-                        ),
-                        child: Container(
-                          padding: const EdgeInsets.all(10),
-                          child: _isLoading
-                              ? const SizedBox(
-                                  height: 16,
-                                  width: 16,
-                                  child: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.white,
-                                    ),
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(40),
+                      ),
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+                        child: _isLoading
+                            ? const SizedBox(
+                                height: 16,
+                                width: 16,
+                                child: CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
                                   ),
-                                )
-                              : const Text('Login'),
-                        ),
+                                ),
+                              )
+                            : const Text('Login'),
                       ),
                     ),
                   ),
-                  if (isFingerprintSet)
-                    Column(
-                      children: [
-                        Container(
-                          margin: const EdgeInsets.symmetric(vertical: 5),
-                          child: const Text(
-                            'OR',
-                            style: TextStyle(color: Colors.grey, fontSize: 12),
+                ),
+                if (isFingerprintSet)
+                  Column(
+                    children: [
+                      Container(
+                        margin: const EdgeInsets.symmetric(vertical: 5),
+                        child: const Text(
+                          'OR',
+                          style: TextStyle(color: Colors.grey, fontSize: 12),
+                        ),
+                      ),
+                      InkWell(
+                        onTap: handleFingerprintLogin,
+                        child: Container(
+                          decoration: BoxDecoration(
+                              color: Colors.transparent,
+                              border: Border.all(
+                                color: Colors.teal,
+                                width: 2,
+                              ),
+                              borderRadius: BorderRadius.circular(30)),
+                          padding: const EdgeInsets.all(5),
+                          margin: const EdgeInsets.symmetric(vertical: 10),
+                          child: const Icon(
+                            Icons.fingerprint,
+                            size: 35,
                           ),
                         ),
-                        InkWell(
-                          onTap: handleFingerprintLogin,
-                          child: Container(
-                            decoration: BoxDecoration(
-                                color: Colors.transparent,
-                                border: Border.all(
-                                  color: Colors.teal,
-                                  width: 2,
-                                ),
-                                borderRadius: BorderRadius.circular(30)),
-                            padding: const EdgeInsets.all(5),
-                            margin: const EdgeInsets.symmetric(vertical: 10),
-                            child: const Icon(
-                              Icons.fingerprint,
-                              size: 35,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  TextButton(
-                    onPressed: () {
-                      final Uri url = Uri.parse('https://sms.net.bd/signup/');
-                      _launchUrl(url); // Launch the URL.
-                    },
-                    child: const Text('Not registered yet? Sign up'),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                TextButton(
+                  onPressed: () {
+                    final Uri url = Uri.parse('https://sms.net.bd/signup/');
+                    _launchUrl(url); // Launch the URL.
+                  },
+                  child: const Text('Not registered yet? Sign up'),
+                ),
+              ],
             ),
           ),
         ),

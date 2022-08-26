@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sms_net_bd/screens/messaging/pages/add_template.dart';
+import 'package:sms_net_bd/screens/messaging/pages/template_form.dart';
 import 'package:sms_net_bd/screens/messaging/scheduled_tab.dart';
 import 'package:sms_net_bd/screens/messaging/senderid_tab.dart';
 import 'package:sms_net_bd/screens/messaging/sms_tab.dart';
@@ -18,12 +18,41 @@ class MessagingScreen extends StatefulWidget {
 class _MessagingScreenState extends State<MessagingScreen> {
   int currentIndex = 0;
 
-  final List<StatefulWidget> screens = [
-    const SMSTab(),
-    const SenderIdTab(),
-    const ScheduledTab(),
-    const TemplateTab()
-  ];
+  List screens = [];
+
+  @override
+  void initState() {
+    screens = [
+      const SMSTab(),
+      const SenderIdTab(),
+      const ScheduledTab(),
+      const TemplateTab()
+    ];
+    super.initState();
+  }
+
+  void handleFloatingActions() async {
+    if (currentIndex == 1) {
+      // request for sender id page
+    } else if (currentIndex == 3) {
+      // add template page
+      final bool? temAdded =
+          await Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return const TemplateForm(
+          title: 'Add Template',
+        );
+      }));
+
+      if (temAdded == true) {
+        // refresh templates list
+        setState(() {
+          screens[currentIndex] = null;
+          screens[currentIndex] = const TemplateTab();
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,29 +62,12 @@ class _MessagingScreenState extends State<MessagingScreen> {
         title: 'Messaging',
         mounted: mounted,
       ),
-      drawer: appDrawer(context, mounted),
-      body: screens[currentIndex],
+      drawer: const AppDrawer(),
+      body: screens[currentIndex] ?? Container(),
       floatingActionButton: (currentIndex == 0 || currentIndex == 2)
           ? null
           : FloatingActionButton(
-              onPressed: () async {
-                if (currentIndex == 1) {
-                  // request for sender id page
-                } else if (currentIndex == 3) {
-                  // add template page
-                  final bool? temAdded = await Navigator.push(context,
-                      MaterialPageRoute(builder: (context) {
-                    return const AddTemplate();
-                  }));
-
-                  if (temAdded == true) {
-                    setState(() {
-                      currentIndex = 3;
-                      // todo kaj hocche na
-                    });
-                  }
-                }
-              },
+              onPressed: handleFloatingActions,
               tooltip: 'Increment',
               elevation: 2.0,
               child: const Icon(Icons.add),

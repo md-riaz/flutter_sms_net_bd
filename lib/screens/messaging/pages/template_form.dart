@@ -5,19 +5,39 @@ import 'package:sms_net_bd/utils/api_client.dart';
 import 'package:sms_net_bd/utils/constants.dart';
 import 'package:sms_net_bd/widgets/form_text.dart';
 
-class AddTemplate extends StatefulWidget {
-  const AddTemplate({Key? key}) : super(key: key);
+class TemplateForm extends StatefulWidget {
+  final String title;
+  final int? tempId;
+  final String? tempName;
+  final String? tempBody;
+
+  const TemplateForm(
+      {Key? key,
+      this.tempId,
+      this.tempName,
+      this.tempBody,
+      required this.title})
+      : super(key: key);
 
   @override
-  State<AddTemplate> createState() => _AddTemplateState();
+  State<TemplateForm> createState() => _TemplateFormState();
 }
 
-class _AddTemplateState extends State<AddTemplate> {
+class _TemplateFormState extends State<TemplateForm> {
   final _formKey = GlobalKey<FormState>();
   bool isLoading = false;
 
   final TextEditingController nameController = TextEditingController();
   final TextEditingController bodyController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.tempId != null) {
+      nameController.text = widget.tempName!;
+      bodyController.text = widget.tempBody!;
+    }
+  }
 
   Future<void> handleSubmit() async {
     try {
@@ -30,10 +50,14 @@ class _AddTemplateState extends State<AddTemplate> {
         'text': bodyController.text,
       };
 
+      final url = widget.tempId != null
+          ? '/messaging/template/edit/${widget.tempId}'
+          : '/messaging/template/add';
+
       final response = await sendRequest(
         context: context,
         mounted: mounted,
-        uri: '/messaging/template/add',
+        uri: url,
         type: 'POST',
         body: data,
       );
@@ -67,7 +91,7 @@ class _AddTemplateState extends State<AddTemplate> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Template'),
+        title: Text(widget.title),
       ),
       body: Form(
         key: _formKey,
@@ -77,7 +101,7 @@ class _AddTemplateState extends State<AddTemplate> {
             child: Column(
               children: [
                 FormText(
-                  label: 'Template Name',
+                  label: 'Name',
                   controller: nameController,
                   validator: (val) {
                     if (val!.isEmpty) {
@@ -88,7 +112,7 @@ class _AddTemplateState extends State<AddTemplate> {
                   },
                 ),
                 FormText(
-                  label: 'Template Body',
+                  label: 'Body',
                   controller: bodyController,
                   maxLines: 3,
                   validator: (val) {

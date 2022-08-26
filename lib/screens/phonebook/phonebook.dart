@@ -29,7 +29,7 @@ class _PhonebookScreenState extends State<PhonebookScreen> {
         title: 'Phonebook',
         mounted: mounted,
       ),
-      drawer: appDrawer(context, mounted),
+      drawer: const AppDrawer(),
       body: IndexedStack(
         index: currentIndex,
         children: screens,

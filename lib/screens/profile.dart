@@ -37,7 +37,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         title: 'Profile',
         mounted: mounted,
       ),
-      drawer: appDrawer(context, mounted),
+      drawer: const AppDrawer(),
       body: FutureBuilder(
           future: pageFuture,
           builder: (BuildContext context, AsyncSnapshot snapshot) {

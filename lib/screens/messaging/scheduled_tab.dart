@@ -82,7 +82,9 @@ class _ScheduledTabState extends State<ScheduledTab> {
 
     date = await showDatePicker(
       context: context,
-      initialDate: scheduledDate,
+      initialDate: scheduledDate.isBefore(DateTime.now())
+          ? DateTime.now()
+          : scheduledDate,
       firstDate: DateTime.now(),
       lastDate: DateTime(DateTime.now().year + 10),
     );
