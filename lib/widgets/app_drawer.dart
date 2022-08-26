@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sms_net_bd/utils/api_client.dart';
 import 'package:sms_net_bd/utils/routes.dart';
 
@@ -10,24 +11,48 @@ class AppDrawer extends StatefulWidget {
 }
 
 class _AppDrawerState extends State<AppDrawer> {
-  Map menu = {
-    dashboardRoute: {
-      'title': const Text('Dashboard'),
-      'icon': const Icon(Icons.dashboard),
-    },
-    messagingRoute: {
-      'title': const Text('Messaging'),
-      'icon': const Icon(Icons.message),
-    },
-    phonebookRoute: {
-      'title': const Text('Phonebook'),
-      'icon': const Icon(Icons.contacts),
-    },
-    profileRoute: {
-      'title': const Text('Profile'),
-      'icon': const Icon(Icons.person),
-    },
-  };
+  Map? menu;
+
+  @override
+  void initState() {
+    super.initState();
+    checkMenu();
+  }
+
+  Future checkMenu() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final bool isAdmin = prefs.getString('userGroup') == 'Admin';
+    final menu = {
+      dashboardRoute: {
+        'title': const Text('Dashboard'),
+        'icon': const Icon(Icons.dashboard),
+      },
+      messagingRoute: {
+        'title': const Text('Messaging'),
+        'icon': const Icon(Icons.message),
+      },
+      phonebookRoute: {
+        'title': const Text('Phonebook'),
+        'icon': const Icon(Icons.contacts),
+      },
+      monitorRoute: {
+        'title': const Text('Monitor'),
+        'icon': const Icon(Icons.assessment),
+      },
+      profileRoute: {
+        'title': const Text('Profile'),
+        'icon': const Icon(Icons.person),
+      },
+    };
+    if (!isAdmin) {
+      menu.remove(monitorRoute);
+    }
+
+    setState(() {
+      this.menu = menu;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,13 +78,14 @@ class _AppDrawerState extends State<AppDrawer> {
               ),
             ),
           ),
-          ...menu.keys.map((route) => ListTile(
-                title: menu[route]?['title'],
-                leading: menu[route]?['icon'],
-                onTap: () {
-                  Navigator.of(context).pushNamed(route);
-                },
-              )),
+          if (menu != null)
+            ...menu!.keys.map((route) => ListTile(
+                  title: menu![route]['title'],
+                  leading: menu![route]['icon'],
+                  onTap: () {
+                    Navigator.of(context).pushNamed(route);
+                  },
+                )),
           ListTile(
             leading: const Icon(Icons.exit_to_app),
             title: const Text('Log out'),
