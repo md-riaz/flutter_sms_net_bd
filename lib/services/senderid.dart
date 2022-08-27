@@ -25,3 +25,14 @@ Future getSenderIds(BuildContext context, mounted) async {
 
   return [];
 }
+
+Future addSenderId(BuildContext context, mounted, String senderId) async {
+  final resp = await sendRequest(
+      context: context,
+      mounted: mounted,
+      uri: '/config/senderid/add',
+      type: 'POST',
+      body: {'sender_id': senderId});
+
+  return resp;
+}

@@ -13,64 +13,67 @@ class SenderIdTab extends StatefulWidget {
 
 class _SenderIdTabState extends State<SenderIdTab> {
   Future? pageFuture;
+  List<Map> SenderIDs = [];
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    pageFuture = getSenderIds(context, mounted);
+    getPageData();
+  }
+
+  Future getPageData() async {
+    final data = await getSenderIds(context, mounted);
+
+    setState(() {
+      SenderIDs.addAll(List.from(data));
+      isLoading = false;
+    });
+  }
+
+  Future<void> onRefresh() async {
+    SenderIDs = [];
+    await getPageData();
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: pageFuture,
-      builder: (BuildContext context, AsyncSnapshot snapshot) {
-        switch (snapshot.connectionState) {
-          case ConnectionState.waiting:
-            return preloader;
-          case ConnectionState.done:
-          default:
-            if (snapshot.hasError) {
-              final error = snapshot.error;
+    if (isLoading) {
+      return preloader;
+    }
 
-              return Text('🥺 $error');
-            } else if (snapshot.hasData) {
-              final List? data = snapshot.data;
+    return RefreshIndicator(
+      onRefresh: (() => onRefresh()),
+      child: ListView.separated(
+        scrollDirection: Axis.vertical,
+        shrinkWrap: true,
+        itemCount: SenderIDs.length,
+        separatorBuilder: (context, index) => const Divider(
+          thickness: 1,
+          height: 1,
+        ),
+        itemBuilder: (BuildContext context, int index) {
+          final Map item = SenderIDs[index];
 
-              return SingleChildScrollView(
-                child: ListView.separated(
-                  scrollDirection: Axis.vertical,
-                  shrinkWrap: true,
-                  itemCount: data!.length,
-                  separatorBuilder: (context, index) => const Divider(
-                    thickness: 1,
-                    height: 1,
+          return ListTile(
+            title: Text(item[index]!['sender_id']),
+            subtitle: Text(item[index]!['status']),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.access_time),
+                const SizedBox(width: 5),
+                Text(
+                  DateFormat('dd MMM yyyy, hh:mm a').format(
+                    DateTime.parse(
+                        item[index]['updated'] ?? item[index]['created']),
                   ),
-                  itemBuilder: (BuildContext context, int index) {
-                    return ListTile(
-                      title: Text(data[index]!['sender_id']),
-                      subtitle: Text(data[index]!['status']),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.access_time),
-                          const SizedBox(width: 5),
-                          Text(
-                            DateFormat('dd MMM yyyy, hh:mm a').format(
-                              DateTime.parse(data[index]['updated'] ??
-                                  data[index]['created']),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
                 ),
-              );
-            }
-            return const Center(child: Text('No Data'));
-        }
-      },
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sms_net_bd/screens/messaging/pages/senderid_form.dart';
 import 'package:sms_net_bd/screens/messaging/pages/template_form.dart';
 import 'package:sms_net_bd/screens/messaging/scheduled_tab.dart';
 import 'package:sms_net_bd/screens/messaging/senderid_tab.dart';
@@ -34,14 +35,24 @@ class _MessagingScreenState extends State<MessagingScreen> {
   void handleFloatingActions() async {
     if (currentIndex == 1) {
       // request for sender id page
+      final bool? addSenderId = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const SenderIdForm(),
+          ));
+
+      if (addSenderId == true) {
+        setState(() {
+          screens[currentIndex] = null;
+          screens[currentIndex] = const SenderIdTab();
+        });
+      }
     } else if (currentIndex == 3) {
       // add template page
-      final bool? temAdded =
-          await Navigator.push(context, MaterialPageRoute(builder: (context) {
-        return const TemplateForm(
-          title: 'Add Template',
-        );
-      }));
+      final bool? temAdded = await Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => const TemplateForm(title: 'Add Template')));
 
       if (temAdded == true) {
         // refresh templates list
