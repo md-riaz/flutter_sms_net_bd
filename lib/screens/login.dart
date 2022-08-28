@@ -54,11 +54,12 @@ class _LoginScreenState extends State<LoginScreen> {
         isAvailable = false;
       } finally {
         final usingBiometric = await storage.read(key: 'usingBiometric');
-
-        setState(() {
-          canUseBiometrics = isAvailable;
-          isFingerprintSet = usingBiometric == 'true';
-        });
+        if (mounted) {
+          setState(() {
+            canUseBiometrics = isAvailable;
+            isFingerprintSet = usingBiometric == 'true';
+          });
+        }
       }
     }
   }

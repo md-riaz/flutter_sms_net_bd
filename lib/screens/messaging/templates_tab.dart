@@ -25,10 +25,12 @@ class _TemplateTabState extends State<TemplateTab> {
   Future getPageData() async {
     final data = await getTemplates(context, mounted);
 
-    setState(() {
-      templates.addAll(List.from(data));
-      isLoading = false;
-    });
+    if (mounted) {
+      setState(() {
+        templates.addAll(List.from(data));
+        isLoading = false;
+      });
+    }
   }
 
   void handleDelete(item) async {

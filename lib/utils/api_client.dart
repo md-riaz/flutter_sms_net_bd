@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -58,11 +59,33 @@ Future sendRequest({
 
       if (!mounted) return;
 
-      Navigator.of(context)
-          .pushNamedAndRemoveUntil(loginRoute, (route) => false);
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        loginRoute,
+        (route) => false,
+      );
     }
 
     return result;
+  } on SocketException catch (_) {
+    if (!mounted) return;
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('No Internet Connection'),
+          content: const Text(
+              'Please check your internet connection and try again.'),
+          actions: <Widget>[
+            ElevatedButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   } catch (e) {
     log(e.toString());
   } finally {

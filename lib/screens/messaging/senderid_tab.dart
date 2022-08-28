@@ -13,7 +13,7 @@ class SenderIdTab extends StatefulWidget {
 
 class _SenderIdTabState extends State<SenderIdTab> {
   Future? pageFuture;
-  List<Map> SenderIDs = [];
+  List<Map> senderIds = [];
   bool isLoading = true;
 
   @override
@@ -25,14 +25,16 @@ class _SenderIdTabState extends State<SenderIdTab> {
   Future getPageData() async {
     final data = await getSenderIds(context, mounted);
 
-    setState(() {
-      SenderIDs.addAll(List.from(data));
-      isLoading = false;
-    });
+    if (mounted) {
+      setState(() {
+        senderIds.addAll(List.from(data));
+        isLoading = false;
+      });
+    }
   }
 
   Future<void> onRefresh() async {
-    SenderIDs = [];
+    senderIds = [];
     await getPageData();
   }
 
@@ -47,17 +49,17 @@ class _SenderIdTabState extends State<SenderIdTab> {
       child: ListView.separated(
         scrollDirection: Axis.vertical,
         shrinkWrap: true,
-        itemCount: SenderIDs.length,
+        itemCount: senderIds.length,
         separatorBuilder: (context, index) => const Divider(
           thickness: 1,
           height: 1,
         ),
         itemBuilder: (BuildContext context, int index) {
-          final Map item = SenderIDs[index];
+          final Map item = senderIds[index];
 
           return ListTile(
-            title: Text(item[index]!['sender_id']),
-            subtitle: Text(item[index]!['status']),
+            title: Text(item['sender_id']),
+            subtitle: Text(item['status']),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -65,8 +67,7 @@ class _SenderIdTabState extends State<SenderIdTab> {
                 const SizedBox(width: 5),
                 Text(
                   DateFormat('dd MMM yyyy, hh:mm a').format(
-                    DateTime.parse(
-                        item[index]['updated'] ?? item[index]['created']),
+                    DateTime.parse(item['updated'] ?? item['created']),
                   ),
                 ),
               ],
