@@ -83,6 +83,12 @@ class _GroupsTabState extends State<GroupsTab> {
           if (index < items.length) {
             final item = items[index];
 
+            if (item.isEmpty) {
+              return const Center(
+                child: Text('No data'),
+              );
+            }
+
             return Slidable(
               key: const ValueKey(0),
 

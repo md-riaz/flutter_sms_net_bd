@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -16,7 +15,8 @@ class MonitorScreen extends StatefulWidget {
   State<MonitorScreen> createState() => _MonitorScreenState();
 }
 
-class _MonitorScreenState extends State<MonitorScreen> {
+class _MonitorScreenState extends State<MonitorScreen>
+    with TickerProviderStateMixin {
   Future? pageFuture;
   late Timer timer;
 
@@ -25,15 +25,36 @@ class _MonitorScreenState extends State<MonitorScreen> {
     super.initState();
     pageFuture = getPageData();
     timer = Timer.periodic(const Duration(seconds: 5), (Timer t) {
-      setState(() {});
+      if (mounted) {
+        setState(() {
+          pageFuture = getPageData();
+        });
+      }
     });
   }
 
   Future getPageData() async {
-    final data = await getMonitorData(context, mounted);
+    if (mounted) {
+      _controller.repeat();
+      final data = await getMonitorData(context, mounted);
+      _controller.stop();
+      return data;
+    }
 
-    return data;
+    return null;
   }
+
+// Create a controller
+  late final AnimationController _controller = AnimationController(
+    duration: const Duration(seconds: 1),
+    vsync: this,
+  );
+
+// Create an animation with value of type "double"
+  late final Animation<double> _animation = CurvedAnimation(
+    parent: _controller,
+    curve: Curves.linear,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -49,10 +70,7 @@ class _MonitorScreenState extends State<MonitorScreen> {
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.waiting:
-              return const Padding(
-                padding: EdgeInsets.symmetric(vertical: 32),
-                child: preloader,
-              );
+
             case ConnectionState.done:
             default:
               if (snapshot.hasError) {
@@ -61,7 +79,7 @@ class _MonitorScreenState extends State<MonitorScreen> {
                 return Text('🥺 $error');
               } else if (snapshot.hasData) {
                 final Map data = snapshot.data as Map;
-                log('calling 5 sec');
+
                 return SingleChildScrollView(
                   child: Container(
                     margin: const EdgeInsets.all(16),
@@ -80,9 +98,23 @@ class _MonitorScreenState extends State<MonitorScreen> {
                 );
               }
 
-              return const Center(child: Text('No Data'));
+              return const Padding(
+                padding: EdgeInsets.symmetric(vertical: 32),
+                child: preloader,
+              );
           }
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          setState(() {
+            pageFuture = getPageData();
+          });
+        },
+        child: RotationTransition(
+          turns: _animation,
+          child: const Icon(Icons.rotate_right_rounded),
+        ),
       ),
     );
   }

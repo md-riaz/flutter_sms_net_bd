@@ -127,16 +127,10 @@ class _LoginScreenState extends State<LoginScreen> {
           result['msg'],
         );
       }
-    } catch (e) {
-      devtools.log(e.toString());
-
-      if (!mounted) return;
-
-      await showErrorDialog(context, 'Something went wrong.');
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
 
     return;
@@ -172,7 +166,7 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SingleChildScrollView(
         child: Container(
           padding: const EdgeInsets.all(20),
-          margin: const EdgeInsets.only(top: 30),
+          margin: const EdgeInsets.only(top: 100),
           constraints: const BoxConstraints(maxWidth: 500),
           child: Form(
             key: _formKey,

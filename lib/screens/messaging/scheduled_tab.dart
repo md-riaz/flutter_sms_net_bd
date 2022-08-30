@@ -148,7 +148,13 @@ class _ScheduledTabState extends State<ScheduledTab> {
 
                       return Text('🥺 $error');
                     } else if (snapshot.hasData) {
-                      final data = snapshot.data;
+                      final List data = snapshot.data;
+
+                      if (data.isEmpty) {
+                        return const Center(
+                          child: Text('No data'),
+                        );
+                      }
 
                       return ListView.separated(
                         shrinkWrap: true,

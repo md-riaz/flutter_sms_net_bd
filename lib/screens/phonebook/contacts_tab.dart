@@ -83,6 +83,12 @@ class _ContactsTabState extends State<ContactsTab> {
           if (index < items.length) {
             final item = items[index];
 
+            if (item.isEmpty) {
+              return const Center(
+                child: Text('No data'),
+              );
+            }
+
             return Slidable(
               key: const ValueKey(0),
 

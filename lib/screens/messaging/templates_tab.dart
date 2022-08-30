@@ -106,7 +106,11 @@ class _TemplateTabState extends State<TemplateTab> {
         },
         itemBuilder: (BuildContext context, int i) {
           final Map item = templates[i];
-
+          if (item.isEmpty) {
+            return const Center(
+              child: Text('No data'),
+            );
+          }
           return ExpansionTile(
             title: Text(item['name']),
             children: <Widget>[
