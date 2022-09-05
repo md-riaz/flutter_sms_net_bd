@@ -1,13 +1,12 @@
 import 'dart:convert';
-import 'dart:developer' as devtools show log;
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:sms_net_bd/utils/api_client.dart';
+import 'package:sms_net_bd/widgets/authentication.dart';
 import 'package:sms_net_bd/widgets/error_dialog.dart';
 import 'package:sms_net_bd/widgets/form_text.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -64,24 +63,6 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  Future<bool> authenticateWithBiometric() async {
-    bool didAuthenticate = false;
-
-    try {
-      didAuthenticate = await _auth.authenticate(
-        localizedReason: 'Authenticate to continue',
-        options: const AuthenticationOptions(
-          biometricOnly: true,
-          stickyAuth: true,
-        ),
-      );
-    } on PlatformException catch (e) {
-      devtools.log(e.toString());
-    }
-
-    return didAuthenticate;
-  }
-
   Future<void> initLogin(email, password) async {
     setState(() {
       _isLoading = true;
@@ -90,9 +71,9 @@ class _LoginScreenState extends State<LoginScreen> {
     // fingerPrintLogin
 
     if (_wantsTouchId == true && canUseBiometrics) {
-      final bool didAuthenticate = await authenticateWithBiometric();
+      bool isAuthenticated = await Authentication.authenticateWithBiometrics();
 
-      if (didAuthenticate) {
+      if (isAuthenticated) {
         storage.write(
           key: 'usingBiometric',
           value: _wantsTouchId.toString(),
@@ -137,9 +118,9 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> handleFingerprintLogin() async {
-    final bool didAuthenticate = await authenticateWithBiometric();
+    bool isAuthenticated = await Authentication.authenticateWithBiometrics();
 
-    if (didAuthenticate) {
+    if (isAuthenticated) {
       String? credentials = await storage.read(key: 'credentials');
 
       credentials = utf8.decode(base64Decode(credentials!));
@@ -219,7 +200,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: InkWell(
                     child: ElevatedButton(
                       onPressed: () async {
-                        if (_formKey.currentState!.validate()) {
+                        if (!_isLoading && _formKey.currentState!.validate()) {
                           await initLogin(_email.text, _password.text);
                         }
                       },
