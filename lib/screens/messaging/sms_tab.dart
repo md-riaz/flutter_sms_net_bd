@@ -92,6 +92,7 @@ class _SMSTabState extends State<SMSTab> {
                                   labelProperty: 'sender_id'),
                             ),
                           ),
+                          formSpacer,
                           FormText(
                             controller: groupsController,
                             label: 'Group Recipients',

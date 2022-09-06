@@ -169,9 +169,12 @@ class _ScheduledTabState extends State<ScheduledTab> {
                           final Map item = data[i];
                           return ExpansionTile(
                             title: Text(item['sender_id'] ?? 'Default'),
-                            leading: const Icon(Icons.access_time),
+                            leading: const SizedBox(
+                              height: double.infinity,
+                              child: Icon(Icons.access_time),
+                            ),
                             subtitle: Text(
-                              'Recipient: ${item['message']}',
+                              'Message: ${item['message']}',
                               overflow: TextOverflow.ellipsis,
                             ),
                             children: <Widget>[

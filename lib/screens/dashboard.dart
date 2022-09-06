@@ -305,15 +305,15 @@ class BalanceCard extends StatelessWidget {
                 );
               },
               style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.teal,
                 shape: const CircleBorder(
                   side: BorderSide(
                     color: Colors.teal,
                     width: 3,
                   ),
                 ),
+                backgroundColor: Colors.white,
                 elevation: 0,
-                primary: Colors.white,
-                onPrimary: Colors.teal,
                 padding: const EdgeInsets.all(10),
               ),
               child: const Padding(

@@ -36,6 +36,10 @@ class _AppDrawerState extends State<AppDrawer> {
         'title': const Text('Phonebook'),
         'icon': const Icon(Icons.contacts),
       },
+      reportRoute: {
+        'title': const Text('Report'),
+        'icon': const Icon(Icons.file_open),
+      },
       monitorRoute: {
         'title': const Text('Monitor'),
         'icon': const Icon(Icons.assessment),
@@ -102,9 +106,9 @@ class _AppDrawerState extends State<AppDrawer> {
                               Navigator.of(context).pop();
                             },
                             style: ElevatedButton.styleFrom(
+                              foregroundColor: Colors.teal,
+                              backgroundColor: Colors.white,
                               elevation: 0,
-                              primary: Colors.white,
-                              onPrimary: Colors.teal,
                               padding: const EdgeInsets.all(10),
                             ),
                             child: const Text('Cancel'),

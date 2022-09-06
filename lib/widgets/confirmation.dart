@@ -27,9 +27,9 @@ class ConfirmationDialog extends StatelessWidget {
             Navigator.of(context).pop();
           },
           style: ElevatedButton.styleFrom(
+            foregroundColor: Colors.teal,
+            backgroundColor: Colors.white,
             elevation: 0,
-            primary: Colors.white,
-            onPrimary: Colors.teal,
             padding: const EdgeInsets.all(10),
           ),
           child: cancelButtonText ?? const Text('Cancel'),

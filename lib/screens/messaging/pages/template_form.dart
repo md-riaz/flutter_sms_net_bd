@@ -131,7 +131,7 @@ class _TemplateFormState extends State<TemplateForm> {
                       Expanded(
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            primary: Colors.grey,
+                            backgroundColor: Colors.grey,
                           ),
                           onPressed: () {
                             Navigator.pop(context);

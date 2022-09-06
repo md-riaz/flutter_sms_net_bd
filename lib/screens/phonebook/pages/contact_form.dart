@@ -67,7 +67,7 @@ class _ContactFormState extends State<ContactForm> {
                       Expanded(
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            primary: Colors.grey,
+                            backgroundColor: Colors.grey,
                           ),
                           onPressed: () {
                             Navigator.pop(context);

@@ -19,16 +19,15 @@ class MessagingScreen extends StatefulWidget {
 class _MessagingScreenState extends State<MessagingScreen> {
   int currentIndex = 0;
 
-  List screens = [];
+  List screens = [
+    const SMSTab(),
+    const SenderIdTab(),
+    const ScheduledTab(),
+    const TemplateTab()
+  ];
 
   @override
   void initState() {
-    screens = [
-      const SMSTab(),
-      const SenderIdTab(),
-      const ScheduledTab(),
-      const TemplateTab()
-    ];
     super.initState();
   }
 
@@ -43,8 +42,7 @@ class _MessagingScreenState extends State<MessagingScreen> {
 
       if (addSenderId == true) {
         setState(() {
-          screens[currentIndex] = null;
-          screens[currentIndex] = const SenderIdTab();
+          currentIndex = 1;
         });
       }
     } else if (currentIndex == 3) {
@@ -57,8 +55,7 @@ class _MessagingScreenState extends State<MessagingScreen> {
       if (temAdded == true) {
         // refresh templates list
         setState(() {
-          screens[currentIndex] = null;
-          screens[currentIndex] = const TemplateTab();
+          currentIndex = 3;
         });
       }
     }

@@ -77,7 +77,7 @@ class _SenderIdFormState extends State<SenderIdForm> {
                       Expanded(
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            primary: Colors.grey,
+                            backgroundColor: Colors.grey,
                           ),
                           onPressed: () {
                             Navigator.pop(context);
