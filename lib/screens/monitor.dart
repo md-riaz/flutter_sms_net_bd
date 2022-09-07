@@ -86,9 +86,9 @@ class _MonitorScreenState extends State<MonitorScreen>
                     child: Column(
                       children: [
                         Resources(
-                          CPU: data['monitor']['cpu'],
-                          RAM: data['monitor']['ram'],
-                          Disk: data['monitor']['disk'],
+                          cpu: data['monitor']['cpu'],
+                          ram: data['monitor']['ram'],
+                          disk: data['monitor']['disk'],
                         ),
                         formSpacer,
                         Summery(monitorData: data['monitor']),
@@ -121,15 +121,15 @@ class _MonitorScreenState extends State<MonitorScreen>
 }
 
 class Resources extends StatelessWidget {
-  final Map CPU;
-  final Map Disk;
-  final Map RAM;
+  final Map cpu;
+  final Map disk;
+  final Map ram;
 
   const Resources({
     Key? key,
-    required this.CPU,
-    required this.Disk,
-    required this.RAM,
+    required this.cpu,
+    required this.disk,
+    required this.ram,
   }) : super(key: key);
 
   @override
@@ -172,14 +172,14 @@ class Resources extends StatelessWidget {
                       ),
                       formSpacer,
                       Text(
-                        'CPU Core: ${CPU['core']}',
+                        'CPU Core: ${cpu['core']}',
                         style: TextStyle(
                           color: Colors.cyan.shade400,
                         ),
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'Free: ${CPU['free']}%',
+                        'Free: ${cpu['free']}%',
                         style: TextStyle(
                           color: Colors.cyan.shade400,
                         ),
@@ -190,7 +190,7 @@ class Resources extends StatelessWidget {
                     height: 90,
                     width: 90,
                     child: LiquidCircularProgressIndicator(
-                      value: CPU['usage'] / 100, // Defaults to 0.5.
+                      value: cpu['usage'] / 100, // Defaults to 0.5.
                       valueColor: AlwaysStoppedAnimation(
                         Colors.cyan.shade200,
                       ), // Defaults to the current Theme's accentColor.
@@ -200,7 +200,7 @@ class Resources extends StatelessWidget {
                       borderWidth: 3.0,
                       direction: Axis.vertical,
                       // The direction the liquid moves (Axis.vertical = bottom to top, Axis.horizontal = left to right). Defaults to Axis.vertical.
-                      center: Text("${CPU['usage']}%"), //text inside it
+                      center: Text("${cpu['usage']}%"), //text inside it
                     ),
                   ),
                 ],
@@ -227,14 +227,14 @@ class Resources extends StatelessWidget {
                       ),
                       formSpacer,
                       Text(
-                        'Total: ${RAM['total']}',
+                        'Total: ${ram['total']}',
                         style: TextStyle(
                           color: Colors.pink.shade400,
                         ),
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'Free: ${RAM['free']}',
+                        'Free: ${ram['free']}',
                         style: TextStyle(
                           color: Colors.pink.shade400,
                         ),
@@ -245,7 +245,7 @@ class Resources extends StatelessWidget {
                     height: 90,
                     width: 90,
                     child: LiquidCircularProgressIndicator(
-                      value: RAM['usage'] / 100, // Defaults to 0.5.
+                      value: ram['usage'] / 100, // Defaults to 0.5.
                       valueColor: AlwaysStoppedAnimation(
                         Colors.pink.shade100,
                       ), // Defaults to the current Theme's accentColor.
@@ -255,7 +255,7 @@ class Resources extends StatelessWidget {
                       borderWidth: 3.0,
                       direction: Axis.vertical,
                       // The direction the liquid moves (Axis.vertical = bottom to top, Axis.horizontal = left to right). Defaults to Axis.vertical.
-                      center: Text("${RAM['used']}"), //text inside it
+                      center: Text("${ram['used']}"), //text inside it
                     ),
                   ),
                 ],
@@ -282,14 +282,14 @@ class Resources extends StatelessWidget {
                       ),
                       formSpacer,
                       Text(
-                        'Total: ${Disk['total']}',
+                        'Total: ${disk['total']}',
                         style: TextStyle(
                           color: Colors.teal.shade400,
                         ),
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'Free: ${Disk['free']}',
+                        'Free: ${disk['free']}',
                         style: TextStyle(
                           color: Colors.teal.shade400,
                         ),
@@ -300,7 +300,7 @@ class Resources extends StatelessWidget {
                     height: 90,
                     width: 90,
                     child: LiquidCircularProgressIndicator(
-                      value: Disk['usage'] / 100, // Defaults to 0.5.
+                      value: disk['usage'] / 100, // Defaults to 0.5.
                       valueColor: AlwaysStoppedAnimation(
                         Colors.teal.shade200,
                       ), // Defaults to the current Theme's accentColor.
@@ -310,7 +310,7 @@ class Resources extends StatelessWidget {
                       borderWidth: 3.0,
                       direction: Axis.vertical,
                       // The direction the liquid moves (Axis.vertical = bottom to top, Axis.horizontal = left to right). Defaults to Axis.vertical.
-                      center: Text("${Disk['used']}"), //text inside it
+                      center: Text("${disk['used']}"), //text inside it
                     ),
                   ),
                 ],
