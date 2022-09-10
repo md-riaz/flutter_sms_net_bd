@@ -83,6 +83,11 @@ class _LoginScreenState extends State<LoginScreen> {
           key: 'credentials',
           value: base64Encode(utf8.encode('${_email.text}:${_password.text}')),
         );
+      } else {
+        setState(() {
+          _isLoading = false;
+        });
+        return;
       }
     }
 

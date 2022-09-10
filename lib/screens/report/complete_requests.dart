@@ -17,7 +17,6 @@ class _CompleteRequestsState extends State<CompleteRequests> {
   bool hasMore = true;
   int page = 1;
   bool isLoading = false;
-  bool isRefreshing = false;
   Map<String, dynamic> queryParams = {
     'page': '1',
   };
@@ -43,203 +42,201 @@ class _CompleteRequestsState extends State<CompleteRequests> {
           handleSearch: handleSearch,
         ),
         const Divider(),
-        if (isLoading && !isRefreshing)
-          preloader
-        else
-          Expanded(
-            flex: 1,
-            child: RefreshIndicator(
-              onRefresh: refresh,
-              child: ListView.separated(
-                controller: controller,
-                itemCount: items.length + 1,
-                separatorBuilder: (context, index) => const Divider(
-                  thickness: 1,
-                  height: 1,
-                ),
-                itemBuilder: (BuildContext context, int index) {
-                  if (index < items.length) {
-                    final item = items[index];
+        Expanded(
+          flex: 1,
+          child: RefreshIndicator(
+            onRefresh: refresh,
+            child: ListView.separated(
+              controller: controller,
+              itemCount: items.length + 1,
+              separatorBuilder: (context, index) => const Divider(
+                thickness: 1,
+                height: 1,
+              ),
+              itemBuilder: (BuildContext context, int index) {
+                if (isLoading) {
+                  return preloader;
+                }
 
-                    if (item.isEmpty) {
-                      return const Center(
-                        child: Text('No data'),
-                      );
-                    }
-                    // todo need to use expension panel list
-                    return ExpansionTile(
-                      leading: const SizedBox(
-                        height: double.infinity,
-                        child: Icon(Icons.messenger_outline_rounded),
-                      ),
-                      title: item['sender_id'] != null
-                          ? Text(item['sender_id'])
-                          : const Text(
-                              'Default',
-                              style: TextStyle(
-                                fontStyle: FontStyle.italic,
-                                color: Colors.grey,
-                              ),
-                            ),
-                      subtitle: Text(
-                          'Sent/Failed: ${item['sent']}/${item['failed']}'),
-                      trailing: Text(
-                        DateFormat('dd MMM yyyy').format(
-                          DateTime.parse(item['datetime']),
-                        ),
-                      ),
-                      children: <Widget>[
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Card(
-                              child: Padding(
-                                padding: const EdgeInsets.all(18.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Row(children: [
-                                          const Text(
-                                            'Request ID: ',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          Text(item['Request_ID'].toString()),
-                                        ]),
-                                        Row(
-                                          children: [
-                                            const Text(
-                                              'Sender ID: ',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            if (item['sender_id'] != null)
-                                              Text(item['sender_id'])
-                                            else
-                                              const Text(
-                                                'Default',
-                                                style: TextStyle(
-                                                  fontStyle: FontStyle.italic,
-                                                  color: Colors.grey,
-                                                ),
-                                              )
-                                          ],
-                                        )
-                                      ],
-                                    ),
-                                    formSpacer,
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Row(children: [
-                                          const Text(
-                                            'Length: ',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          Text(item['msg_length'].toString()),
-                                        ]),
-                                        Row(
-                                          children: [
-                                            const Text(
-                                              'Sent/Failed: ',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            Text(
-                                                '${item['sent']}/${item['failed']}')
-                                          ],
-                                        )
-                                      ],
-                                    ),
-                                    formSpacer,
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Row(children: [
-                                          const Text(
-                                            'Charge: ',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          Text(item['charge'].toString()),
-                                        ]),
-                                        Row(
-                                          children: [
-                                            const Text(
-                                              'Status: ',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            Text('${item['status']}')
-                                          ],
-                                        )
-                                      ],
-                                    ),
-                                    formSpacer,
-                                    const Text(
-                                      'Message',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 5),
-                                    Text(item['message'].toString()),
-                                    formSpacer,
-                                    const Text(
-                                      'DateTime',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 5),
-                                    Text(DateFormat('dd MMM yyyy hh:mm a')
-                                        .format(
-                                      DateTime.parse(item['datetime']),
-                                    )),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: TextButton.icon(
-                                onPressed: null,
-                                icon: const Icon(Icons.view_agenda_outlined),
-                                label: const Text('View Details'),
-                              ),
-                            ),
-                          ],
-                        )
-                      ],
+                if (index < items.length) {
+                  final item = items[index];
+
+                  if (item.isEmpty) {
+                    return const Center(
+                      child: Text('No data'),
                     );
                   }
-
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 32),
-                    child: hasMore
-                        ? preloader
-                        : const Center(
-                            child: Text(
-                            'No more data to load',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          )),
+                  // todo need to use expension panel list
+                  return ExpansionTile(
+                    leading: const SizedBox(
+                      height: double.infinity,
+                      child: Icon(Icons.messenger_outline_rounded),
+                    ),
+                    title: item['sender_id'] != null
+                        ? Text(item['sender_id'])
+                        : const Text(
+                            'Default',
+                            style: TextStyle(
+                              fontStyle: FontStyle.italic,
+                              color: Colors.grey,
+                            ),
+                          ),
+                    subtitle:
+                        Text('Sent/Failed: ${item['sent']}/${item['failed']}'),
+                    trailing: Text(
+                      DateFormat('dd MMM yyyy').format(
+                        DateTime.parse(item['datetime']),
+                      ),
+                    ),
+                    children: <Widget>[
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Card(
+                            child: Padding(
+                              padding: const EdgeInsets.all(18.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(children: [
+                                        const Text(
+                                          'Request ID: ',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        Text(item['Request_ID'].toString()),
+                                      ]),
+                                      Row(
+                                        children: [
+                                          const Text(
+                                            'Sender ID: ',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          if (item['sender_id'] != null)
+                                            Text(item['sender_id'])
+                                          else
+                                            const Text(
+                                              'Default',
+                                              style: TextStyle(
+                                                fontStyle: FontStyle.italic,
+                                                color: Colors.grey,
+                                              ),
+                                            )
+                                        ],
+                                      )
+                                    ],
+                                  ),
+                                  formSpacer,
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(children: [
+                                        const Text(
+                                          'Length: ',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        Text(item['msg_length'].toString()),
+                                      ]),
+                                      Row(
+                                        children: [
+                                          const Text(
+                                            'Sent/Failed: ',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          Text(
+                                              '${item['sent']}/${item['failed']}')
+                                        ],
+                                      )
+                                    ],
+                                  ),
+                                  formSpacer,
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(children: [
+                                        const Text(
+                                          'Charge: ',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        Text(item['charge'].toString()),
+                                      ]),
+                                      Row(
+                                        children: [
+                                          const Text(
+                                            'Status: ',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          Text('${item['status']}')
+                                        ],
+                                      )
+                                    ],
+                                  ),
+                                  formSpacer,
+                                  const Text(
+                                    'Message',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Text(item['message'].toString()),
+                                  formSpacer,
+                                  const Text(
+                                    'DateTime',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Text(DateFormat('dd MMM yyyy hh:mm a').format(
+                                    DateTime.parse(item['datetime']),
+                                  )),
+                                ],
+                              ),
+                            ),
+                          ),
+                          TextButton.icon(
+                            onPressed: () {},
+                            icon: const Icon(Icons.remove_red_eye_outlined),
+                            label: const Text('View Details'),
+                          ),
+                        ],
+                      )
+                    ],
                   );
-                },
-              ),
+                }
+
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 32),
+                  child: !hasMore
+                      ? const Center(
+                          child: Text(
+                          'No more data to load',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ))
+                      : preloader,
+                );
+              },
             ),
           ),
+        ),
       ],
     );
   }
@@ -262,7 +259,6 @@ class _CompleteRequestsState extends State<CompleteRequests> {
       setState(() {
         page++;
         isLoading = false;
-        isRefreshing = false;
 
         if (data['items'].length < data['item_limit']) {
           hasMore = false;
@@ -275,7 +271,6 @@ class _CompleteRequestsState extends State<CompleteRequests> {
 
   Future refresh() async {
     setState(() {
-      isRefreshing = true;
       isLoading = false;
       hasMore = false;
       page = 0;
@@ -359,6 +354,7 @@ class _CompleteRequestFilterState extends State<CompleteRequestFilter> {
                 FormText(
                   label: 'Search',
                   controller: searchController,
+                  hintText: 'Search by ID, Sender ID, Message',
                   onChanged: (value) {
                     widget.changeRequestParams(
                       startDate,
