@@ -72,12 +72,13 @@ class _TransactionsState extends State<Transactions> {
                       height: double.infinity,
                       child: Icon(Icons.attach_money_outlined),
                     ),
-                    title: Text('${item['id']} (Ref: ${item['reference']})'),
+                    title: Text(
+                        '${item['id']}${(item['reference'] != null && item['reference'].toString().isNotEmpty) ? ' (Ref: ${item['reference']})' : ''}'),
                     subtitle: Text(
                       'Amount: ${item['amount']}',
                     ),
                     trailing: Text(
-                      DateFormat('dd MMM yyyy').format(
+                      DateFormat('dd MMM yyyy hh:mm a').format(
                         DateTime.parse(item['updated']),
                       ),
                     ),

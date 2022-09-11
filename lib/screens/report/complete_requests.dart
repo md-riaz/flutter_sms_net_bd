@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:sms_net_bd/screens/report/request_details.dart';
 import 'package:sms_net_bd/services/requests.dart';
 import 'package:sms_net_bd/utils/constants.dart';
 import 'package:sms_net_bd/widgets/form_text.dart';
@@ -68,9 +69,11 @@ class _CompleteRequestsState extends State<CompleteRequests> {
                   }
                   // todo need to use expension panel list
                   return ExpansionTile(
-                    leading: const SizedBox(
+                    leading: SizedBox(
                       height: double.infinity,
-                      child: Icon(Icons.messenger_outline_rounded),
+                      child: Icon(item['status'] == 'Complete'
+                          ? Icons.done
+                          : Icons.close),
                     ),
                     title: item['sender_id'] != null
                         ? Text(item['sender_id'])
@@ -213,7 +216,16 @@ class _CompleteRequestsState extends State<CompleteRequests> {
                             ),
                           ),
                           TextButton.icon(
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => CompleteRequestDetails(
+                                    requestID: item['Request_ID'].toString(),
+                                  ),
+                                ),
+                              );
+                            },
                             icon: const Icon(Icons.remove_red_eye_outlined),
                             label: const Text('View Details'),
                           ),
