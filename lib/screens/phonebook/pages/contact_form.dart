@@ -1,7 +1,10 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:sms_net_bd/services/groups.dart';
 import 'package:sms_net_bd/utils/constants.dart';
+import 'package:sms_net_bd/widgets/form_text.dart';
+import 'package:sms_net_bd/widgets/multiselect.dart';
 
 class ContactForm extends StatefulWidget {
   final String title;
@@ -16,10 +19,19 @@ class ContactForm extends StatefulWidget {
 
 class _ContactFormState extends State<ContactForm> {
   final _formKey = GlobalKey<FormState>();
+
+  Future? pageFuture;
   bool isLoading = false;
+  bool _status = true;
+  List? groupItems;
+  TextEditingController nameController = TextEditingController();
+  TextEditingController phoneController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController groupsController = TextEditingController();
 
   @override
   void initState() {
+    pageFuture = getPageData();
     super.initState();
   }
 
@@ -52,56 +64,153 @@ class _ContactFormState extends State<ContactForm> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                formSpacer,
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.grey,
+      body: FutureBuilder(
+        future: pageFuture,
+        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.waiting:
+              return preloader;
+            case ConnectionState.done:
+            default:
+              if (snapshot.hasError) {
+                final error = snapshot.error;
+
+                return Text('🥺 $error');
+              } else if (snapshot.hasData) {
+                return Form(
+                  key: _formKey,
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        children: [
+                          FormText(
+                            label: 'Name',
+                            maxLength: 20,
+                            controller: nameController,
+                            keyboardType: TextInputType.text,
                           ),
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: const Text('Cancel'),
-                        ),
-                      ),
-                      const SizedBox(width: 16.0),
-                      Expanded(
-                        child: ElevatedButton(
-                          child: isLoading
-                              ? const SizedBox(
-                                  height: 16.0,
-                                  width: 16.0,
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
+                          FormText(
+                            label: 'Phone',
+                            maxLength: 15,
+                            controller: phoneController,
+                            keyboardType: TextInputType.phone,
+                          ),
+                          FormText(
+                            label: 'Email',
+                            maxLength: 50,
+                            controller: emailController,
+                            keyboardType: TextInputType.emailAddress,
+                          ),
+                          FormText(
+                            controller: groupsController,
+                            label: 'Group Recipients',
+                            readOnly: true,
+                            onTap: () => handleGroupTap(snapshot.data),
+                          ),
+                          SwitchListTile(
+                            title: const Text('Status'),
+                            value: _status,
+                            onChanged: (bool value) {
+                              setState(() {
+                                _status = value;
+                              });
+                            },
+                          ),
+                          formSpacer,
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.grey,
+                                    ),
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text('Cancel'),
                                   ),
-                                )
-                              : const Text('Save'),
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              handleSubmit();
-                            }
-                          },
-                        ),
+                                ),
+                                const SizedBox(width: 16.0),
+                                Expanded(
+                                  child: ElevatedButton(
+                                    child: isLoading
+                                        ? const SizedBox(
+                                            height: 16.0,
+                                            width: 16.0,
+                                            child: CircularProgressIndicator(
+                                              color: Colors.white,
+                                            ),
+                                          )
+                                        : const Text('Save'),
+                                    onPressed: () {
+                                      if (_formKey.currentState!.validate()) {
+                                        handleSubmit();
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        ],
                       ),
-                    ],
+                    ),
                   ),
-                )
-              ],
-            ),
-          ),
-        ),
+                );
+              }
+
+              return const Center(child: Text('No Data'));
+          }
+        },
       ),
     );
+  }
+
+  Future<List> getPageData() async {
+    final pageData = await getGroups(context, mounted, {});
+
+    return pageData;
+  }
+
+  void handleGroupTap(groups) async {
+    final selected = await showMultiSelect(groups, groupItems);
+
+    if (selected != null) {
+      setState(() {
+        groupItems = selected;
+
+        final selectedGroups = groupItems!.map((groupId) {
+          final item = groups.firstWhere((element) => element['id'] == groupId);
+          return item['group_name'];
+        }).toList();
+
+        groupsController.text = selectedGroups.join(', ');
+      });
+    }
+  }
+
+  Future<List?> showMultiSelect(List items, selectedValues) async {
+    final selectItems = <MultiSelectDialogItem>[];
+
+    if (items.isNotEmpty) {
+      for (var item in items) {
+        selectItems.add(MultiSelectDialogItem(item['id'], item['group_name']));
+      }
+    }
+
+    final List? selectedItems = await showDialog<List<dynamic>>(
+      context: context,
+      builder: (BuildContext context) {
+        return MultiSelectDialog(
+          items: selectItems,
+          initialSelectedValues: selectedValues,
+        );
+      },
+    );
+
+    return selectedItems;
   }
 }
