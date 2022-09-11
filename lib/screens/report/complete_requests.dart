@@ -56,17 +56,24 @@ class _CompleteRequestsState extends State<CompleteRequests> {
               ),
               itemBuilder: (BuildContext context, int index) {
                 if (isLoading) {
-                  return preloader;
+                  return const Padding(
+                    padding: EdgeInsets.all(32.0),
+                    child: preloader,
+                  );
+                }
+
+                if (items.isEmpty) {
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(18.0),
+                      child: Text('No data'),
+                    ),
+                  );
                 }
 
                 if (index < items.length) {
                   final item = items[index];
 
-                  if (item.isEmpty) {
-                    return const Center(
-                      child: Text('No data'),
-                    );
-                  }
                   // todo need to use expension panel list
                   return ExpansionTile(
                     leading: SizedBox(

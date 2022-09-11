@@ -56,11 +56,16 @@ class _SenderIdTabState extends State<SenderIdTab> {
         ),
         itemBuilder: (BuildContext context, int index) {
           final Map item = senderIds[index];
-          if (item.isEmpty) {
-            return const Center(
-              child: Text('No data'),
+
+          if (senderIds.isEmpty) {
+            return const Padding(
+              padding: EdgeInsets.all(32.0),
+              child: Center(
+                child: Text('No data'),
+              ),
             );
           }
+
           return ListTile(
             title: Text(item['sender_id']),
             subtitle: Text(item['status']),

@@ -21,6 +21,8 @@ class _TransactionsState extends State<Transactions> {
     'page': '1',
   };
 
+  final NumberFormat formatter = NumberFormat.decimalPattern('en_us');
+
   @override
   void initState() {
     super.initState();
@@ -55,18 +57,24 @@ class _TransactionsState extends State<Transactions> {
               ),
               itemBuilder: (BuildContext context, int index) {
                 if (isLoading) {
-                  return preloader;
+                  return const Padding(
+                    padding: EdgeInsets.all(32.0),
+                    child: preloader,
+                  );
+                }
+
+                if (items.isEmpty) {
+                  return const Padding(
+                    padding: EdgeInsets.all(32.0),
+                    child: Center(
+                      child: Text('No data'),
+                    ),
+                  );
                 }
 
                 if (index < items.length) {
                   final item = items[index];
 
-                  if (item.isEmpty) {
-                    return const Center(
-                      child: Text('No data'),
-                    );
-                  }
-                  // todo need to use expension panel list
                   return ListTile(
                     leading: const SizedBox(
                       height: double.infinity,

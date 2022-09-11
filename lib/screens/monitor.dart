@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
+import 'package:sms_net_bd/screens/errors.dart';
 import 'package:sms_net_bd/services/monitor.dart';
 import 'package:sms_net_bd/utils/constants.dart';
 import 'package:sms_net_bd/widgets/app_bar.dart';
@@ -462,32 +463,40 @@ class Summery extends StatelessWidget {
                 ],
               ),
             ),
-            Container(
-              width: MediaQuery.of(context).size.width * 0.43,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.orange.shade50,
-                borderRadius: BorderRadius.circular(2),
+            GestureDetector(
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const MonitorErrorScreen(),
+                ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Errors',
-                    style: TextStyle(
-                      fontSize: 18,
+              child: Container(
+                width: MediaQuery.of(context).size.width * 0.43,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.orange.shade50,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Errors',
+                      style: TextStyle(
+                        fontSize: 18,
+                      ),
                     ),
-                  ),
-                  formSpacer,
-                  formSpacer,
-                  Text(
-                    formatter.format(monitorData['errors']),
-                    style: TextStyle(
-                      fontSize: 28,
-                      color: Colors.orange.shade400,
+                    formSpacer,
+                    formSpacer,
+                    Text(
+                      formatter.format(monitorData['errors']),
+                      style: TextStyle(
+                        fontSize: 28,
+                        color: Colors.orange.shade400,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             )
           ],

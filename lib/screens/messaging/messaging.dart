@@ -42,7 +42,13 @@ class _MessagingScreenState extends State<MessagingScreen> {
 
       if (addSenderId == true) {
         setState(() {
-          currentIndex = 1;
+          currentIndex = 0;
+        });
+
+        Future.delayed(const Duration(milliseconds: 500), () {
+          setState(() {
+            currentIndex = 1;
+          });
         });
       }
     } else if (currentIndex == 3) {
@@ -55,7 +61,13 @@ class _MessagingScreenState extends State<MessagingScreen> {
       if (temAdded == true) {
         // refresh templates list
         setState(() {
-          currentIndex = 3;
+          currentIndex = 0;
+        });
+
+        Future.delayed(const Duration(milliseconds: 500), () {
+          setState(() {
+            currentIndex = 3;
+          });
         });
       }
     }
