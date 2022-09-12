@@ -38,78 +38,83 @@ class _MonitorErrorScreenState extends State<MonitorErrorScreen> {
       appBar: AppBar(
         title: const Text('Monitor Errors'),
       ),
-      body: items.isEmpty
-          ? const Center(
-              child: Text('No data'),
-            )
-          : RefreshIndicator(
-              onRefresh: refresh,
-              child: ListView.separated(
-                controller: controller,
-                itemCount: items.length + 1,
-                separatorBuilder: (context, index) => const Divider(
-                  thickness: 1,
-                  height: 1,
-                ),
-                itemBuilder: (BuildContext context, int index) {
-                  if (isLoading) {
-                    return preloader;
-                  }
+      body: RefreshIndicator(
+        onRefresh: refresh,
+        child: ListView.separated(
+          controller: controller,
+          itemCount: items.length + 1,
+          separatorBuilder: (context, index) => const Divider(
+            thickness: 1,
+            height: 1,
+          ),
+          itemBuilder: (BuildContext context, int index) {
+            if (isLoading) {
+              return const Padding(
+                padding: EdgeInsets.all(32.0),
+                child: preloader,
+              );
+            }
 
-                  if (index < items.length) {
-                    final item = items[index];
-                    // todo need to use expension panel list
-                    return ExpansionTile(
-                      leading: const SizedBox(
-                        height: double.infinity,
-                        child: Icon(Icons.warning_outlined),
-                      ),
-                      title: Text('${item['account']} (${item['id']})'),
-                      subtitle: Text(
-                        '${item['error']}',
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      trailing: Text(
-                        DateFormat('dd MMM yyyy hh:mm a').format(
-                          DateTime.parse(item['created']),
-                        ),
-                      ),
-                      children: <Widget>[
-                        Card(
-                          child: Padding(
-                            padding: const EdgeInsets.all(18.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Error: ',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 5),
-                                Text(item['error'].toString()),
-                              ],
+            if (items.isEmpty) {
+              return const Center(
+                child: Text('No data'),
+              );
+            }
+
+            if (index < items.length) {
+              final item = items[index];
+              // todo need to use expension panel list
+              return ExpansionTile(
+                leading: const SizedBox(
+                  height: double.infinity,
+                  child: Icon(Icons.warning_outlined),
+                ),
+                title: Text('${item['account']} (${item['id']})'),
+                subtitle: Text(
+                  '${item['error']}',
+                  overflow: TextOverflow.ellipsis,
+                ),
+                trailing: Text(
+                  DateFormat('dd MMM yyyy hh:mm a').format(
+                    DateTime.parse(item['created']),
+                  ),
+                ),
+                children: <Widget>[
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(18.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Error: ',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                        )
-                      ],
-                    );
-                  }
+                          const SizedBox(height: 5),
+                          Text(item['error'].toString()),
+                        ],
+                      ),
+                    ),
+                  )
+                ],
+              );
+            }
 
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 32),
-                    child: !hasMore
-                        ? const Center(
-                            child: Text(
-                            'No more data to load',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ))
-                        : preloader,
-                  );
-                },
-              ),
-            ),
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 32),
+              child: !hasMore
+                  ? const Center(
+                      child: Text(
+                      'No more data to load',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ))
+                  : preloader,
+            );
+          },
+        ),
+      ),
     );
   }
 
