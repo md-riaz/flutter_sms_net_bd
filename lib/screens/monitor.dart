@@ -93,6 +93,8 @@ class _MonitorScreenState extends State<MonitorScreen>
                         ),
                         formSpacer,
                         Summery(monitorData: data['monitor']),
+                        formSpacer,
+                        LastRequests(lastRequests: data['last_requests']),
                       ],
                     ),
                   ),
@@ -501,6 +503,193 @@ class Summery extends StatelessWidget {
             )
           ],
         ),
+      ],
+    );
+  }
+}
+
+class LastRequests extends StatelessWidget {
+  final List lastRequests;
+  const LastRequests({super.key, required this.lastRequests});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Last 10 Requests',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        formSpacer,
+        ...lastRequests
+            .map(
+              (item) => Column(
+                children: [
+                  ExpansionTile(
+                    leading: SizedBox(
+                      height: double.infinity,
+                      child: Icon((item['status'] == 'Complete')
+                          ? Icons.done
+                          : (item['status'] == 'Processing')
+                              ? Icons.work_outline
+                              : Icons.pending),
+                    ),
+                    title: item['sender_id'] != null
+                        ? Text(item['sender_id'])
+                        : const Text(
+                            'Default',
+                            style: TextStyle(
+                              fontStyle: FontStyle.italic,
+                              color: Colors.grey,
+                            ),
+                          ),
+                    subtitle: Text(
+                        'Sent/Failed: ${item['count'] - item['failed']}/${item['failed']}'),
+                    trailing: Text(
+                      DateFormat('dd MMM yyyy hh:mm a').format(
+                        DateTime.parse(item['created']),
+                      ),
+                    ),
+                    children: <Widget>[
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Card(
+                            child: Padding(
+                              padding: const EdgeInsets.all(18.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(children: [
+                                        const Text(
+                                          'Request ID: ',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        Text(item['Request_ID'].toString()),
+                                      ]),
+                                      Row(
+                                        children: [
+                                          const Text(
+                                            'Sender ID: ',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          if (item['sender_id'] != null)
+                                            Text(item['sender_id'])
+                                          else
+                                            const Text(
+                                              'Default',
+                                              style: TextStyle(
+                                                fontStyle: FontStyle.italic,
+                                                color: Colors.grey,
+                                              ),
+                                            )
+                                        ],
+                                      )
+                                    ],
+                                  ),
+                                  formSpacer,
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(children: [
+                                        const Text(
+                                          'Length: ',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        Text(item['msg_length'].toString()),
+                                      ]),
+                                      Row(
+                                        children: [
+                                          const Text(
+                                            'Sent/Failed: ',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          Text(
+                                            '${item['count'] - item['failed']}/${item['failed']}',
+                                          )
+                                        ],
+                                      )
+                                    ],
+                                  ),
+                                  formSpacer,
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(children: [
+                                        const Text(
+                                          'Charge: ',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        Text(item['charge'].toString()),
+                                      ]),
+                                      Row(
+                                        children: [
+                                          const Text(
+                                            'Status: ',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          Text(item['status'] == 1
+                                              ? 'Complete'
+                                              : 'Processing')
+                                        ],
+                                      )
+                                    ],
+                                  ),
+                                  formSpacer,
+                                  const Text(
+                                    'Message',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Text(item['message'].toString()),
+                                  formSpacer,
+                                  const Text(
+                                    'DateTime',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Text(DateFormat('dd MMM yyyy hh:mm a').format(
+                                    DateTime.parse(item['created']),
+                                  )),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                  const Divider(),
+                ],
+              ),
+            )
+            .toList(),
       ],
     );
   }

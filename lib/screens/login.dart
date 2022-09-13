@@ -276,7 +276,7 @@ class _LoginScreenState extends State<LoginScreen> {
 }
 
 Future<void> _launchUrl(url) async {
-  if (!await launchUrl(url)) {
+  if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
     throw 'Could not launch $url';
   }
 }

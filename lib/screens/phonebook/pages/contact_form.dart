@@ -1,7 +1,9 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:sms_net_bd/services/contacts.dart';
 import 'package:sms_net_bd/services/groups.dart';
+import 'package:sms_net_bd/utils/api_client.dart';
 import 'package:sms_net_bd/utils/constants.dart';
 import 'package:sms_net_bd/widgets/form_text.dart';
 import 'package:sms_net_bd/widgets/multiselect.dart';
@@ -24,6 +26,7 @@ class _ContactFormState extends State<ContactForm> {
   bool isLoading = false;
   bool _status = true;
   List? groupItems;
+  List? selectedGroups;
   TextEditingController nameController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
   TextEditingController emailController = TextEditingController();
@@ -41,9 +44,33 @@ class _ContactFormState extends State<ContactForm> {
         isLoading = true;
       });
 
-      // if (response['error'] == 0) {
-      Navigator.pop(context, true);
-      // }
+      final data = {
+        'name': nameController.text,
+        'number': phoneController.text,
+        'email': emailController.text,
+        'status': _status ? '1' : '0',
+      };
+
+      if (selectedGroups!.isNotEmpty) {
+        for (var g in selectedGroups!) {
+          data["group[${g}]"] = g.toString();
+        }
+      }
+
+      if (widget.formData != null) {
+        data['id'] = widget.formData!['id'];
+      }
+
+      final resp = await saveContact(context, mounted, data);
+
+      if (resp['error'] == 0) {
+        if (!mounted) return;
+        Navigator.pop(context, true);
+      }
+
+      if (!mounted) return;
+
+      showSnackBar(context, resp['msg']);
     } catch (e) {
       log(e.toString());
     } finally {
@@ -182,12 +209,14 @@ class _ContactFormState extends State<ContactForm> {
       setState(() {
         groupItems = selected;
 
-        final selectedGroups = groupItems!.map((groupId) {
+        final selectedGroupText = groupItems!.map((groupId) {
           final item = groups.firstWhere((element) => element['id'] == groupId);
           return item['group_name'];
         }).toList();
 
-        groupsController.text = selectedGroups.join(', ');
+        selectedGroups = selected;
+
+        groupsController.text = selectedGroupText.join(', ');
       });
     }
   }

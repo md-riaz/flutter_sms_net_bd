@@ -290,14 +290,24 @@ class BalanceCard extends StatelessWidget {
                   context: context,
                   builder: (BuildContext context) {
                     return AlertDialog(
-                      title: const Text('Coming Soon'),
-                      content: const Text('This feature is comming soon'),
+                      title: const Text('Recharge Amount'),
+                      content: const FormText(
+                        label: 'Amount',
+                        keyboardType: TextInputType.number,
+                      ),
                       actions: <Widget>[
-                        ElevatedButton(
+                        TextButton(
                           onPressed: () {
                             Navigator.of(context).pop();
                           },
-                          child: const Text('OK'),
+                          child: const Text('CANCEL'),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            showSnackBar(context, 'Processing...');
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text('CONFIRM'),
                         ),
                       ],
                     );

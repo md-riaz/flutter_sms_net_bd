@@ -14,3 +14,15 @@ Future getContacts(context, mounted, queryParams) async {
 
   return [];
 }
+
+Future saveContact(context, mounted, data) async {
+  final resp = await sendRequest(
+    context: context,
+    mounted: mounted,
+    uri: '/phonebook/contact/add/',
+    type: 'POST',
+    body: data,
+  );
+
+  return resp;
+}
