@@ -53,7 +53,7 @@ class _ContactFormState extends State<ContactForm> {
 
       if (selectedGroups!.isNotEmpty) {
         for (var g in selectedGroups!) {
-          data["group[${g}]"] = g.toString();
+          data["group[$g]"] = g.toString();
         }
       }
 
