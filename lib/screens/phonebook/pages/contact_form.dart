@@ -36,6 +36,14 @@ class _ContactFormState extends State<ContactForm> {
   void initState() {
     pageFuture = getPageData();
     super.initState();
+
+    if (widget.formData != null) {
+      nameController.text = widget.formData!['name'];
+      phoneController.text = widget.formData!['number'];
+      emailController.text = widget.formData!['email'];
+      groupItems = widget.formData!['groups'];
+      _status = widget.formData!['status'] == '1';
+    }
   }
 
   Future<void> handleSubmit() async {
@@ -58,7 +66,7 @@ class _ContactFormState extends State<ContactForm> {
       }
 
       if (widget.formData != null) {
-        data['id'] = widget.formData!['id'];
+        data['id'] = widget.formData!['id'].toString();
       }
 
       final resp = await saveContact(context, mounted, data);
@@ -198,6 +206,18 @@ class _ContactFormState extends State<ContactForm> {
 
   Future<List> getPageData() async {
     final pageData = await getGroups(context, mounted, {});
+
+    // if it is an edit form, then set the selected groups
+    if (widget.formData != null) {
+      final selectedGroupText = groupItems!.map((groupId) {
+        final item = pageData.firstWhere((element) => element['id'] == groupId);
+        return item['group_name'];
+      }).toList();
+
+      selectedGroups = widget.formData!['groups'];
+
+      groupsController.text = selectedGroupText.join(', ');
+    }
 
     return pageData;
   }

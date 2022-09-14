@@ -16,10 +16,14 @@ Future getContacts(context, mounted, queryParams) async {
 }
 
 Future saveContact(context, mounted, data) async {
+  final uri = data['id'] != null
+      ? '/phonebook/contact/edit/${data['id']}'
+      : '/phonebook/contact/add';
+
   final resp = await sendRequest(
     context: context,
     mounted: mounted,
-    uri: '/phonebook/contact/add/',
+    uri: uri,
     type: 'POST',
     body: data,
   );

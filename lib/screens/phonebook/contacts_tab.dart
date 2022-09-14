@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:sms_net_bd/screens/phonebook/pages/contact_form.dart';
 import 'package:sms_net_bd/services/contacts.dart';
 import 'package:sms_net_bd/utils/constants.dart';
 
@@ -33,7 +34,11 @@ class _ContactsTabState extends State<ContactsTab> {
     if (isLoading) {
       return;
     }
-    isLoading = true;
+
+    setState(() {
+      isLoading = true;
+    });
+
     final data = await getContacts(context, mounted, {'page': page.toString()});
 
     if (mounted) {
@@ -97,21 +102,20 @@ class _ContactsTabState extends State<ContactsTab> {
                 motion: const ScrollMotion(),
                 children: [
                   SlidableAction(
-                    onPressed: (BuildContext context) {
-                      // show alert that edit page will come soon
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text('Edit'),
-                          content: const Text('Edit page will come soon'),
-                          actions: [
-                            ElevatedButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: const Text('OK'),
-                            ),
-                          ],
+                    onPressed: (BuildContext context) async {
+                      final edit = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ContactForm(
+                            title: 'Edit Contact',
+                            formData: item,
+                          ),
                         ),
                       );
+
+                      if (edit != null) {
+                        refresh();
+                      }
                     },
                     backgroundColor: Colors.blueGrey,
                     foregroundColor: Colors.white,
@@ -143,6 +147,10 @@ class _ContactsTabState extends State<ContactsTab> {
                 ],
               ),
               child: ListTile(
+                leading: const SizedBox(
+                  height: double.infinity,
+                  child: Icon(Icons.person),
+                ),
                 title: item['name'].toString().isNotEmpty
                     ? Text(item['name'])
                     : const Text(
