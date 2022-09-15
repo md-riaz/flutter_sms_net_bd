@@ -8,6 +8,10 @@ void main() {
       primarySwatch: Colors.teal,
       scaffoldBackgroundColor: Colors.white,
     ),
+    darkTheme: ThemeData(
+      brightness: Brightness.dark,
+      primarySwatch: Colors.teal,
+    ),
     debugShowCheckedModeBanner: false,
     routes: Routes.list(),
     initialRoute: Routes.initScreen(),
