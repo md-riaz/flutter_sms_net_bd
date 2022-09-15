@@ -2,6 +2,7 @@ import 'dart:developer' as developer show log;
 
 import 'package:flutter/material.dart';
 import 'package:sms_net_bd/services/dashboard.dart';
+import 'package:sms_net_bd/services/recharge.dart';
 import 'package:sms_net_bd/utils/api_client.dart';
 import 'package:sms_net_bd/utils/constants.dart';
 import 'package:sms_net_bd/widgets/app_bar.dart';
@@ -233,10 +234,23 @@ class TopStats extends StatelessWidget {
   }
 }
 
-class BalanceCard extends StatelessWidget {
+class BalanceCard extends StatefulWidget {
   final Map data;
 
   const BalanceCard({Key? key, required this.data}) : super(key: key);
+
+  @override
+  State<BalanceCard> createState() => _BalanceCardState();
+}
+
+class _BalanceCardState extends State<BalanceCard> {
+  TextEditingController rechargeAmount = TextEditingController();
+
+  @override
+  void dispose() {
+    rechargeAmount.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -267,7 +281,7 @@ class BalanceCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  data['balance'].toStringAsFixed(2),
+                  widget.data['balance'].toStringAsFixed(2),
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 35.0,
@@ -275,7 +289,7 @@ class BalanceCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  'Validity: ${data['validity'] != null ? data['validity'].toString() : ''}',
+                  'Validity: ${widget.data['validity'] != null ? widget.data['validity'].toString() : ''}',
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 14.0,
@@ -285,27 +299,34 @@ class BalanceCard extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                // show alert that this feature is comming soon
                 showDialog(
                   context: context,
                   builder: (BuildContext context) {
                     return AlertDialog(
                       title: const Text('Recharge Amount'),
-                      content: const FormText(
+                      content: FormText(
                         label: 'Amount',
                         keyboardType: TextInputType.number,
+                        controller: rechargeAmount,
                       ),
                       actions: <Widget>[
                         TextButton(
                           onPressed: () {
                             Navigator.of(context).pop();
                           },
-                          child: const Text('CANCEL'),
+                          child: const Text(
+                            'CANCEL',
+                            style: TextStyle(
+                              color: Colors.grey,
+                            ),
+                          ),
                         ),
-                        ElevatedButton(
-                          onPressed: () {
+                        TextButton(
+                          onPressed: () async {
                             showSnackBar(context, 'Processing...');
-                            Navigator.of(context).pop();
+                            await rechargeBalance(
+                                context, mounted, rechargeAmount.text);
+                            // Navigator.of(context).pop();
                           },
                           child: const Text('CONFIRM'),
                         ),
