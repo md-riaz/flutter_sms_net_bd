@@ -56,8 +56,11 @@ class _MonitorErrorScreenState extends State<MonitorErrorScreen> {
             }
 
             if (items.isEmpty) {
-              return const Center(
-                child: Text('No data'),
+              return const Padding(
+                padding: EdgeInsets.all(32.0),
+                child: Center(
+                  child: Text('No data'),
+                ),
               );
             }
 

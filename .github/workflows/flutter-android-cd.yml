@@ -42,7 +42,7 @@ jobs:
         run: flutter pub get
 
       - name: Build APK
-        run: flutter clean && flutter build apk --split-per-abi --release
+        run: flutter clean && flutter build apk --release
 
       - name: Build APPBUNDLE
         run: flutter build appbundle --release
