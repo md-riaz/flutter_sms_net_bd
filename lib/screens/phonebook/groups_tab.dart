@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:sms_net_bd/screens/phonebook/pages/group_form.dart';
 import 'package:sms_net_bd/services/groups.dart';
+import 'package:sms_net_bd/utils/api_client.dart';
 import 'package:sms_net_bd/utils/constants.dart';
 
 class GroupsTab extends StatefulWidget {
@@ -33,7 +35,9 @@ class _GroupsTabState extends State<GroupsTab> {
     if (isLoading) {
       return;
     }
-    isLoading = true;
+
+    setState(() => isLoading = true);
+
     final data = await getGroups(context, mounted, {'page': page.toString()});
 
     if (mounted) {
@@ -80,6 +84,13 @@ class _GroupsTabState extends State<GroupsTab> {
           height: 1,
         ),
         itemBuilder: (BuildContext context, int index) {
+          if (isLoading) {
+            return const Padding(
+              padding: EdgeInsets.all(32.0),
+              child: preloader,
+            );
+          }
+
           if (index < items.length) {
             final item = items[index];
 
@@ -97,21 +108,20 @@ class _GroupsTabState extends State<GroupsTab> {
                 motion: const ScrollMotion(),
                 children: [
                   SlidableAction(
-                    onPressed: (BuildContext context) {
-                      // show alert that edit page will come soon
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text('Edit'),
-                          content: const Text('Edit page will come soon'),
-                          actions: [
-                            ElevatedButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: const Text('OK'),
-                            ),
-                          ],
+                    onPressed: (BuildContext context) async {
+                      final edit = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => GroupForm(
+                            title: 'Edit Group',
+                            formData: item,
+                          ),
                         ),
                       );
+
+                      if (edit != null) {
+                        refresh();
+                      }
                     },
                     backgroundColor: Colors.blueGrey,
                     foregroundColor: Colors.white,
@@ -120,20 +130,7 @@ class _GroupsTabState extends State<GroupsTab> {
                   ),
                   SlidableAction(
                     onPressed: (BuildContext context) {
-                      // show alert that delete page will come soon
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text('Delete'),
-                          content: const Text('Delete page will come soon'),
-                          actions: [
-                            ElevatedButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: const Text('OK'),
-                            ),
-                          ],
-                        ),
-                      );
+                      handleDelete(context, item);
                     },
                     backgroundColor: Colors.red,
                     foregroundColor: Colors.white,
@@ -154,6 +151,47 @@ class _GroupsTabState extends State<GroupsTab> {
             child: hasMore ? preloader : null,
           );
         },
+      ),
+    );
+  }
+
+  void handleDelete(BuildContext context, Map item) {
+    // ask if delete should be performed
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete'),
+        content: const Text('Are you sure want to delete?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            style: ButtonStyle(
+              foregroundColor: MaterialStateProperty.all(Colors.grey),
+            ),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              if (!mounted) return;
+
+              final deleted = await deleteGroup(
+                context,
+                mounted,
+                item['id'],
+              );
+
+              if (!mounted) return;
+
+              if (deleted) {
+                showSnackBar(context, 'Deleted successfully');
+                refresh();
+              }
+
+              Navigator.pop(context);
+            },
+            child: const Text('Delete'),
+          ),
+        ],
       ),
     );
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:sms_net_bd/screens/phonebook/pages/contact_form.dart';
 import 'package:sms_net_bd/services/contacts.dart';
+import 'package:sms_net_bd/utils/api_client.dart';
 import 'package:sms_net_bd/utils/constants.dart';
 
 class ContactsTab extends StatefulWidget {
@@ -30,42 +31,6 @@ class _ContactsTabState extends State<ContactsTab> {
     });
   }
 
-  Future getPageData() async {
-    if (isLoading) {
-      return;
-    }
-
-    setState(() {
-      isLoading = true;
-    });
-
-    final data = await getContacts(context, mounted, {'page': page.toString()});
-
-    if (mounted) {
-      setState(() {
-        page++;
-        isLoading = false;
-
-        if (data['items'].length < data['item_limit']) {
-          hasMore = false;
-        }
-
-        items.addAll(data['items']);
-      });
-    }
-  }
-
-  Future refresh() async {
-    setState(() {
-      isLoading = false;
-      hasMore = false;
-      page = 0;
-      items.clear();
-    });
-
-    await getPageData();
-  }
-
   @override
   void dispose() {
     controller.dispose();
@@ -85,6 +50,13 @@ class _ContactsTabState extends State<ContactsTab> {
           height: 1,
         ),
         itemBuilder: (BuildContext context, int index) {
+          if (isLoading) {
+            return const Padding(
+              padding: EdgeInsets.all(32.0),
+              child: preloader,
+            );
+          }
+
           if (index < items.length) {
             final item = items[index];
 
@@ -124,20 +96,7 @@ class _ContactsTabState extends State<ContactsTab> {
                   ),
                   SlidableAction(
                     onPressed: (BuildContext context) {
-                      // show alert that delete page will come soon
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text('Delete'),
-                          content: const Text('Delete page will come soon'),
-                          actions: [
-                            ElevatedButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: const Text('OK'),
-                            ),
-                          ],
-                        ),
-                      );
+                      handleDelete(context, item);
                     },
                     backgroundColor: Colors.red,
                     foregroundColor: Colors.white,
@@ -179,5 +138,80 @@ class _ContactsTabState extends State<ContactsTab> {
         },
       ),
     );
+  }
+
+  void handleDelete(BuildContext context, Map item) {
+    // ask if delete should be performed
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete'),
+        content: const Text('Are you sure want to delete?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            style: ButtonStyle(
+              foregroundColor: MaterialStateProperty.all(Colors.grey),
+            ),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              if (!mounted) return;
+              final deleted = await deleteContact(
+                context,
+                mounted,
+                item['id'],
+              );
+
+              if (!mounted) return;
+              if (deleted) {
+                showSnackBar(context, 'Deleted successfully');
+                refresh();
+              }
+
+              Navigator.pop(context);
+            },
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future getPageData() async {
+    if (isLoading) {
+      return;
+    }
+
+    setState(() {
+      isLoading = true;
+    });
+
+    final data = await getContacts(context, mounted, {'page': page.toString()});
+
+    if (mounted) {
+      setState(() {
+        page++;
+        isLoading = false;
+
+        if (data['items'].length < data['item_limit']) {
+          hasMore = false;
+        }
+
+        items.addAll(data['items']);
+      });
+    }
+  }
+
+  Future refresh() async {
+    setState(() {
+      isLoading = false;
+      hasMore = false;
+      page = 0;
+      items.clear();
+    });
+
+    await getPageData();
   }
 }

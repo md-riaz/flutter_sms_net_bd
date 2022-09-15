@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:sms_net_bd/utils/api_client.dart';
-import 'package:sms_net_bd/widgets/authentication.dart';
+import 'package:sms_net_bd/utils/authentication.dart';
 import 'package:sms_net_bd/widgets/error_dialog.dart';
 import 'package:sms_net_bd/widgets/form_text.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -20,6 +20,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
+  bool _passwordVisible = false;
   late final TextEditingController _email;
   late final TextEditingController _password;
 
@@ -36,105 +37,6 @@ class _LoginScreenState extends State<LoginScreen> {
     _password = TextEditingController();
     isBiometricAvailable();
     super.initState();
-  }
-
-  Future<void> isBiometricAvailable() async {
-    bool isAvailable = false;
-    if (!kIsWeb && Platform.isAndroid) {
-      try {
-        final bool canAuthenticateWithBiometrics =
-            await _auth.canCheckBiometrics;
-        final bool isDeviceSupported = await _auth.isDeviceSupported();
-
-        if (canAuthenticateWithBiometrics && isDeviceSupported) {
-          isAvailable = true;
-        }
-      } catch (e) {
-        isAvailable = false;
-      } finally {
-        final usingBiometric = await storage.read(key: 'usingBiometric');
-        if (mounted) {
-          setState(() {
-            canUseBiometrics = isAvailable;
-            isFingerprintSet = usingBiometric == 'true';
-          });
-        }
-      }
-    }
-  }
-
-  Future<void> initLogin(email, password) async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    // fingerPrintLogin
-
-    if (_wantsTouchId == true && canUseBiometrics) {
-      bool isAuthenticated = await Authentication.authenticateWithBiometrics();
-
-      if (isAuthenticated) {
-        storage.write(
-          key: 'usingBiometric',
-          value: _wantsTouchId.toString(),
-        );
-
-        storage.write(
-          key: 'credentials',
-          value: base64Encode(utf8.encode('${_email.text}:${_password.text}')),
-        );
-      } else {
-        setState(() {
-          _isLoading = false;
-        });
-        return;
-      }
-    }
-
-    try {
-      final result = await sendRequest(
-        context: context,
-        mounted: mounted,
-        uri: '/user/login/',
-        type: 'POST',
-        body: {'email': email, 'password': password},
-      );
-
-      if (result['error'] == 0) {
-        // Store the user data in shared preferences.
-        await addToken(result);
-        if (!mounted) return;
-        Navigator.of(context).pushReplacementNamed('/dashboard/');
-      } else {
-        if (!mounted) return;
-
-        await showErrorDialog(
-          context,
-          result['msg'],
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
-
-    return;
-  }
-
-  Future<void> handleFingerprintLogin() async {
-    bool isAuthenticated = await Authentication.authenticateWithBiometrics();
-
-    if (isAuthenticated) {
-      String? credentials = await storage.read(key: 'credentials');
-
-      credentials = utf8.decode(base64Decode(credentials!));
-
-      final email = credentials.split(':')[0];
-      final password = credentials.split(':')[1];
-
-      initLogin(email, password);
-    }
   }
 
   @override
@@ -183,10 +85,22 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 FormText(
                   controller: _password,
-                  obscureText: true,
+                  obscureText: !_passwordVisible,
                   suggestions: false,
                   autocorrect: false,
                   label: 'Password',
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _passwordVisible
+                          ? Icons.visibility
+                          : Icons.visibility_off,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _passwordVisible = !_passwordVisible;
+                      });
+                    },
+                  ),
                 ),
                 if (canUseBiometrics && !isFingerprintSet)
                   CheckboxListTile(
@@ -272,6 +186,108 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> isBiometricAvailable() async {
+    bool isAvailable = false;
+    if (!kIsWeb && Platform.isAndroid) {
+      try {
+        final bool canAuthenticateWithBiometrics =
+            await _auth.canCheckBiometrics;
+        final bool isDeviceSupported = await _auth.isDeviceSupported();
+
+        if (canAuthenticateWithBiometrics && isDeviceSupported) {
+          isAvailable = true;
+        }
+      } catch (e) {
+        isAvailable = false;
+      } finally {
+        final usingBiometric = await storage.read(key: 'usingBiometric');
+
+        if (mounted) {
+          setState(() {
+            canUseBiometrics = isAvailable;
+            isFingerprintSet = (usingBiometric == 'true') ? true : false;
+          });
+        }
+      }
+    }
+  }
+
+  Future<void> initLogin(email, password) async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    // fingerPrintLogin
+
+    if (_wantsTouchId == true && canUseBiometrics) {
+      bool isAuthenticated =
+          await Authentication.authenticateWithBiometrics(context);
+
+      if (isAuthenticated) {
+        storage.write(
+          key: 'usingBiometric',
+          value: _wantsTouchId.toString(),
+        );
+
+        storage.write(
+          key: 'credentials',
+          value: base64Encode(utf8.encode('${_email.text}:${_password.text}')),
+        );
+      } else {
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
+    }
+
+    try {
+      final result = await sendRequest(
+        context: context,
+        mounted: mounted,
+        uri: '/user/login/',
+        type: 'POST',
+        body: {'email': email, 'password': password},
+      );
+
+      if (result['error'] == 0) {
+        // Store the user data in shared preferences.
+        await addToken(result);
+        if (!mounted) return;
+        Navigator.of(context).pushReplacementNamed('/dashboard/');
+      } else {
+        if (!mounted) return;
+
+        await showErrorDialog(
+          context,
+          result['msg'],
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+
+    return;
+  }
+
+  Future<void> handleFingerprintLogin() async {
+    bool isAuthenticated =
+        await Authentication.authenticateWithBiometrics(context);
+
+    if (isAuthenticated) {
+      String? credentials = await storage.read(key: 'credentials');
+
+      credentials = utf8.decode(base64Decode(credentials!));
+
+      final email = credentials.split(':')[0];
+      final password = credentials.split(':')[1];
+
+      initLogin(email, password);
+    }
   }
 }
 

@@ -30,3 +30,14 @@ Future saveContact(context, mounted, data) async {
 
   return resp;
 }
+
+// delete contact
+Future deleteContact(context, mounted, id) async {
+  final resp = await sendRequest(
+    context: context,
+    mounted: mounted,
+    uri: '/phonebook/contact/delete/$id',
+  );
+
+  return resp['error'] == 0;
+}

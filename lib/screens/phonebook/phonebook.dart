@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sms_net_bd/screens/phonebook/contacts_tab.dart';
 import 'package:sms_net_bd/screens/phonebook/groups_tab.dart';
 import 'package:sms_net_bd/screens/phonebook/pages/contact_form.dart';
+import 'package:sms_net_bd/screens/phonebook/pages/group_form.dart';
 import 'package:sms_net_bd/screens/phonebook/widgets/bottom_nav.dart';
 import 'package:sms_net_bd/widgets/app_bar.dart';
 import 'package:sms_net_bd/widgets/app_drawer.dart';
@@ -23,7 +24,7 @@ class _PhonebookScreenState extends State<PhonebookScreen> {
 
   Future handleAddButton() async {
     if (currentIndex == 0) {
-      Navigator.push(
+      final bool? success = await Navigator.push(
         context,
         MaterialPageRoute(builder: (context) {
           return const ContactForm(
@@ -31,12 +32,36 @@ class _PhonebookScreenState extends State<PhonebookScreen> {
           );
         }),
       );
+
+      if (success != null && success) {
+        setState(() {
+          currentIndex = 1;
+        });
+
+        Future.delayed(const Duration(milliseconds: 500), () {
+          setState(() {
+            currentIndex = 0;
+          });
+        });
+      }
     } else {
-      Navigator.push(context, MaterialPageRoute(builder: (context) {
-        return const ContactForm(
-          title: 'Add Group',
+      final bool? success = await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) {
+          return const GroupForm(
+            title: 'Add Group',
+          );
+        }),
+      );
+
+      if (success != null && success) {
+        setState(() => currentIndex = 0);
+
+        Future.delayed(
+          const Duration(milliseconds: 500),
+          () => setState(() => currentIndex = 1),
         );
-      }));
+      }
     }
   }
 

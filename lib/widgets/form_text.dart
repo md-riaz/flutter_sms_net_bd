@@ -21,7 +21,7 @@ class FormText extends StatelessWidget {
   final Function()? onTap;
   final Function(String)? onChanged;
   final List<TextInputFormatter>? inputFormatters;
-  final Icon? suffixIcon;
+  final Widget? suffixIcon;
   final String? helperText;
   final String? errorText;
   final String? counterText;
