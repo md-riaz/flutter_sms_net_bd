@@ -187,7 +187,7 @@ class _SMSTabState extends State<SMSTab> {
     final groupIds = groupItems != null ? groupItems!.join(',#') : null;
 
     formatedRecipient =
-        ('${recipientController.text.toString().trim().split(' ').join(',').split('\n').join(',')},#${groupIds}');
+        ('${recipientController.text.toString().trim().split(' ').join(',').split('\n').join(',')},#$groupIds');
 
     log(formatedRecipient);
   }
