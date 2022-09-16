@@ -66,7 +66,7 @@ class _MonitorErrorScreenState extends State<MonitorErrorScreen> {
 
             if (index < items.length) {
               final item = items[index];
-              // todo need to use expension panel list
+
               return ExpansionTile(
                 leading: const SizedBox(
                   height: double.infinity,

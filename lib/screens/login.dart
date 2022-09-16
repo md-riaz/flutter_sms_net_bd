@@ -19,6 +19,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final _formKey = GlobalKey<FormState>();
+  bool isDarkMode = false;
   bool _isLoading = false;
   bool _passwordVisible = false;
   late final TextEditingController _email;
@@ -37,6 +39,10 @@ class _LoginScreenState extends State<LoginScreen> {
     _password = TextEditingController();
     isBiometricAvailable();
     super.initState();
+    Future.delayed(
+      Duration.zero,
+      () => isDarkMode = Theme.of(context).brightness == Brightness.dark,
+    );
   }
 
   @override
@@ -45,8 +51,6 @@ class _LoginScreenState extends State<LoginScreen> {
     _password.dispose();
     super.dispose();
   }
-
-  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +66,9 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 // add logo image here
                 Image.asset(
-                  'assets/images/light_logo.png',
+                  isDarkMode
+                      ? 'assets/images/dark_logo.png'
+                      : 'assets/images/light_logo.png',
                   height: 100,
                   width: 300,
                 ),

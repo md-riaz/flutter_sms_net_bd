@@ -15,6 +15,7 @@ Future sendRequest({
   String type = 'GET',
   Map<String, dynamic>? body,
   Map<String, dynamic>? queryParameters,
+  bool excludeToken = false,
 }) async {
   final client = http.Client();
 
@@ -24,7 +25,7 @@ Future sendRequest({
 
   String? token = await getToken();
 
-  if (token != null) {
+  if (token != null && !excludeToken) {
     headers['x-auth-token'] = token;
   }
 

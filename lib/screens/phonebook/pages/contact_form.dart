@@ -205,17 +205,20 @@ class _ContactFormState extends State<ContactForm> {
   }
 
   Future<List> getPageData() async {
-    final pageData = await getGroups(context, mounted, {});
+    final List pageData = await getGroups(context, mounted, {});
 
     // if it is an edit form, then set the selected groups
-    if (widget.formData != null) {
+    if (widget.formData != null &&
+        pageData.isNotEmpty &&
+        widget.formData!['groups'].isNotEmpty) {
       final selectedGroupText = groupItems!.map((groupId) {
-        final item = pageData.firstWhere((element) => element['id'] == groupId);
-        return item['group_name'];
+        final item = pageData.firstWhere((element) => element['id'] == groupId,
+            orElse: () => null);
+        return item?['group_name'];
       }).toList();
 
       selectedGroups = widget.formData!['groups'];
-
+      selectedGroupText.removeWhere((v) => v == null);
       groupsController.text = selectedGroupText.join(', ');
     }
 

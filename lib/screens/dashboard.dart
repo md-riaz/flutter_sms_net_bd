@@ -32,7 +32,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
       appBar: appBar(
         context,
         title: 'Dashboard',
@@ -93,12 +92,14 @@ class TopStats extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Wrap(
       spacing: 5,
       runSpacing: 5,
       children: [
         Card(
-          color: Colors.teal.shade100,
+          color: isDarkMode ? null : Colors.teal.shade100,
           child: Container(
             width: MediaQuery.of(context).size.width * 0.43,
             padding: const EdgeInsets.all(16),
@@ -131,7 +132,7 @@ class TopStats extends StatelessWidget {
           ),
         ),
         Card(
-          color: Colors.purple.shade100,
+          color: isDarkMode ? null : Colors.purple.shade100,
           child: Container(
             width: MediaQuery.of(context).size.width * 0.43,
             padding: const EdgeInsets.all(16),
@@ -164,7 +165,7 @@ class TopStats extends StatelessWidget {
           ),
         ),
         Card(
-          color: Colors.blue.shade100,
+          color: isDarkMode ? null : Colors.blue.shade100,
           child: Container(
             width: MediaQuery.of(context).size.width * 0.43,
             padding: const EdgeInsets.all(16),
@@ -197,7 +198,7 @@ class TopStats extends StatelessWidget {
           ),
         ),
         Card(
-          color: Colors.green.shade100,
+          color: isDarkMode ? null : Colors.green.shade100,
           child: Container(
             width: MediaQuery.of(context).size.width * 0.43,
             padding: const EdgeInsets.all(16),
@@ -261,6 +262,7 @@ class _BalanceCardState extends State<BalanceCard> {
         decoration: BoxDecoration(
           image: const DecorationImage(
             image: AssetImage('assets/images/card-bg-1.png'),
+            colorFilter: ColorFilter.mode(Colors.grey, BlendMode.saturation),
             fit: BoxFit.cover,
           ),
           borderRadius: BorderRadius.circular(5),
@@ -325,8 +327,13 @@ class _BalanceCardState extends State<BalanceCard> {
                           onPressed: () async {
                             showSnackBar(context, 'Processing...');
                             await rechargeBalance(
-                                context, mounted, rechargeAmount.text);
-                            // Navigator.of(context).pop();
+                              context,
+                              mounted,
+                              rechargeAmount.text,
+                            );
+
+                            if (!mounted) return;
+                            Navigator.of(context).pop();
                           },
                           child: const Text('CONFIRM'),
                         ),

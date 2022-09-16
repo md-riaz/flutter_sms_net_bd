@@ -74,7 +74,6 @@ class _CompleteRequestsState extends State<CompleteRequests> {
                 if (index < items.length) {
                   final item = items[index];
 
-                  // todo need to use expension panel list
                   return ExpansionTile(
                     leading: SizedBox(
                       height: double.infinity,

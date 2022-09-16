@@ -68,7 +68,6 @@ class _PhonebookScreenState extends State<PhonebookScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
       appBar: appBar(
         context,
         title: 'Phonebook',

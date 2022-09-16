@@ -66,7 +66,7 @@ class _CompleteRequestDetailsState extends State<CompleteRequestDetails> {
                   child: Text('No data'),
                 );
               }
-              // todo need to use expension panel list
+
               return ExpansionTile(
                 leading: SizedBox(
                   height: double.infinity,

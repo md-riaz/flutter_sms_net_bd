@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sms_net_bd/utils/api_client.dart';
 import 'package:sms_net_bd/utils/routes.dart';
 
-enum MenuAction { logout }
+enum MenuAction { profile, logout }
 
 AppBar appBar(
   BuildContext context, {
@@ -21,6 +21,8 @@ AppBar appBar(
     actions: [
       PopupMenuButton<MenuAction>(
         onSelected: (value) async {
+          final navigation = Navigator.of(context);
+
           switch (value) {
             case MenuAction.logout:
               final shouldLogout = await showLogOutDialog(context);
@@ -30,19 +32,27 @@ AppBar appBar(
 
                 if (!mounted) return;
 
-                Navigator.of(context).pushNamedAndRemoveUntil(
+                navigation.pushNamedAndRemoveUntil(
                   loginRoute,
                   (_) => false,
                 );
               }
+              break;
+            case MenuAction.profile:
+              navigation.pushNamed('/profile');
+              break;
           }
         },
         itemBuilder: (context) {
           return const [
             PopupMenuItem<MenuAction>(
+              value: MenuAction.profile,
+              child: Text('Profile'),
+            ),
+            PopupMenuItem<MenuAction>(
               value: MenuAction.logout,
               child: Text('Log out'),
-            )
+            ),
           ];
         },
       )

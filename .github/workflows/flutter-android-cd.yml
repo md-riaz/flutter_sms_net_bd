@@ -42,7 +42,7 @@ jobs:
         run: flutter pub get
 
       - name: Build APK
-        run: flutter clean && flutter build apk --release
+        run: flutter clean && flutter build apk --release --split-per-abi
 
       - name: Build APPBUNDLE
         run: flutter build appbundle --release
@@ -50,7 +50,7 @@ jobs:
       - name: Create Github Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "build/app/outputs/apk/release/*.apk,build/app/outputs/bundle/release/*.aab"
+          artifacts: "build/app/outputs/apk/release/*.apk,build/app/outputs/bundle/release/*.aab, build/app/outputs/flutter-apk/app-release.apk"
           token: ${{ secrets.PERSONAL_RELEASE_TOKEN }}
 
       - name: Save APPBUNDLE to Artifacts

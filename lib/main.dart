@@ -6,12 +6,12 @@ void main() {
     title: 'Alpha SMS',
     theme: ThemeData(
       primarySwatch: Colors.teal,
-      // scaffoldBackgroundColor: Colors.white,
     ),
-    // darkTheme: ThemeData(
-    //   brightness: Brightness.dark,
-    //   primarySwatch: Colors.teal,
-    // ),
+    darkTheme: ThemeData(
+      brightness: Brightness.dark,
+      primarySwatch: Colors.teal,
+    ),
+    themeMode: ThemeMode.dark,
     debugShowCheckedModeBanner: false,
     routes: Routes.list(),
     initialRoute: Routes.initScreen(),

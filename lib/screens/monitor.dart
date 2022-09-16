@@ -158,7 +158,9 @@ class Resources extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.cyan.shade50,
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.white12
+                    : Colors.cyan.shade50,
                 borderRadius: BorderRadius.circular(2),
               ),
               child: Row(
@@ -197,13 +199,19 @@ class Resources extends StatelessWidget {
                       valueColor: AlwaysStoppedAnimation(
                         Colors.cyan.shade200,
                       ), // Defaults to the current Theme's accentColor.
-                      backgroundColor: Colors
-                          .white, // Defaults to the current Theme's backgroundColor.
+                      backgroundColor: Colors.white,
                       borderColor: Colors.cyan.shade300,
                       borderWidth: 3.0,
                       direction: Axis.vertical,
                       // The direction the liquid moves (Axis.vertical = bottom to top, Axis.horizontal = left to right). Defaults to Axis.vertical.
-                      center: Text("${cpu['usage']}%"), //text inside it
+                      center: Text(
+                        "${cpu['usage']}%",
+                        style: TextStyle(
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? Colors.black
+                              : null,
+                        ),
+                      ), //text inside it
                     ),
                   ),
                 ],
@@ -213,7 +221,9 @@ class Resources extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.pink.shade50,
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.white12
+                    : Colors.pink.shade50,
                 borderRadius: BorderRadius.circular(2),
               ),
               child: Row(
@@ -258,7 +268,14 @@ class Resources extends StatelessWidget {
                       borderWidth: 3.0,
                       direction: Axis.vertical,
                       // The direction the liquid moves (Axis.vertical = bottom to top, Axis.horizontal = left to right). Defaults to Axis.vertical.
-                      center: Text("${ram['used']}"), //text inside it
+                      center: Text(
+                        "${ram['used']}",
+                        style: TextStyle(
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? Colors.black
+                              : null,
+                        ),
+                      ), //text inside it
                     ),
                   ),
                 ],
@@ -268,7 +285,9 @@ class Resources extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.teal.shade50,
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.white12
+                    : Colors.teal.shade50,
                 borderRadius: BorderRadius.circular(2),
               ),
               child: Row(
@@ -313,7 +332,14 @@ class Resources extends StatelessWidget {
                       borderWidth: 3.0,
                       direction: Axis.vertical,
                       // The direction the liquid moves (Axis.vertical = bottom to top, Axis.horizontal = left to right). Defaults to Axis.vertical.
-                      center: Text("${disk['used']}"), //text inside it
+                      center: Text(
+                        "${disk['used']}",
+                        style: TextStyle(
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? Colors.black
+                              : null,
+                        ),
+                      ), //text inside it
                     ),
                   ),
                 ],
@@ -356,7 +382,9 @@ class Summery extends StatelessWidget {
               width: MediaQuery.of(context).size.width * 0.43,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.blue.shade50,
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.white12
+                    : Colors.blue.shade50,
                 borderRadius: BorderRadius.circular(2),
               ),
               child: Column(
@@ -384,7 +412,9 @@ class Summery extends StatelessWidget {
               width: MediaQuery.of(context).size.width * 0.43,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.purple.shade50,
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.white12
+                    : Colors.purple.shade50,
                 borderRadius: BorderRadius.circular(2),
               ),
               child: Column(
@@ -413,7 +443,9 @@ class Summery extends StatelessWidget {
               height: MediaQuery.of(context).size.width * 0.3,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.green.shade50,
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.white12
+                    : Colors.green.shade50,
                 borderRadius: BorderRadius.circular(2),
               ),
               child: Column(
@@ -441,7 +473,9 @@ class Summery extends StatelessWidget {
               width: MediaQuery.of(context).size.width * 0.43,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.red.shade50,
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.white12
+                    : Colors.red.shade50,
                 borderRadius: BorderRadius.circular(2),
               ),
               child: Column(
@@ -476,7 +510,9 @@ class Summery extends StatelessWidget {
                 width: MediaQuery.of(context).size.width * 0.43,
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.orange.shade50,
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white12
+                      : Colors.orange.shade50,
                   borderRadius: BorderRadius.circular(2),
                 ),
                 child: Column(
