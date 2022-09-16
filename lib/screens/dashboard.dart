@@ -260,9 +260,11 @@ class _BalanceCardState extends State<BalanceCard> {
         width: double.infinity,
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
-          image: const DecorationImage(
-            image: AssetImage('assets/images/card-bg-1.png'),
-            colorFilter: ColorFilter.mode(Colors.grey, BlendMode.saturation),
+          image: DecorationImage(
+            image: const AssetImage('assets/images/card-bg-1.png'),
+            colorFilter: Theme.of(context).brightness == Brightness.dark
+                ? const ColorFilter.mode(Colors.grey, BlendMode.saturation)
+                : null,
             fit: BoxFit.cover,
           ),
           borderRadius: BorderRadius.circular(5),
