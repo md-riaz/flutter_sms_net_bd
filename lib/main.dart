@@ -11,7 +11,7 @@ void main() {
       brightness: Brightness.dark,
       primarySwatch: Colors.teal,
     ),
-    themeMode: ThemeMode.dark,
+    themeMode: ThemeMode.system,
     debugShowCheckedModeBanner: false,
     routes: Routes.list(),
     initialRoute: Routes.initScreen(),
