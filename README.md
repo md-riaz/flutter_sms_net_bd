@@ -1,16 +1,24 @@
 # sms_net_bd
 
-A new Flutter project.
+REST API-driven flutter app of 15+ screens with biometric login and token-based authentication.
 
-## Getting Started
+This is complete app version of [Alpha SMS Portal](https://portal.sms.net.bd/)
 
-This project is a starting point for a Flutter application.
+#### Theme color
+- Teal
 
-A few resources to get you started if this is your first Flutter project:
+#### Color modes
+- Light
+- Dark
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+#### Plugin used
+- [http](https://pub.dev/packages/http)
+- [shared_preferences](https://pub.dev/packages/shared_preferences)
+- [url_launcher](https://pub.dev/packages/url_launcher)
+- [flutter_slidable](https://pub.dev/packages/flutter_slidable)
+- [flutter_secure_storage](https://pub.dev/packages/flutter_secure_storage)
+- [local_auth](https://pub.dev/packages/local_auth)
+- [liquid_progress_indicator](https://pub.dev/packages/liquid_progress_indicator)
+- [flutter_launcher_icons](https://pub.dev/packages/flutter_launcher_icons)
+- [flutter_native_splash](https://pub.dev/packages/flutter_native_splash)
+- [flutter_icons](https://pub.dev/packages/flutter_launcher_icons)
