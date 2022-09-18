@@ -50,13 +50,6 @@ class _ContactsTabState extends State<ContactsTab> {
           height: 1,
         ),
         itemBuilder: (BuildContext context, int index) {
-          if (isLoading) {
-            return const Padding(
-              padding: EdgeInsets.all(32.0),
-              child: preloader,
-            );
-          }
-
           if (index < items.length) {
             final item = items[index];
 

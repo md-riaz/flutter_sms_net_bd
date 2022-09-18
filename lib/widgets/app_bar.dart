@@ -38,8 +38,9 @@ AppBar appBar(
                 );
               }
               break;
+
             case MenuAction.profile:
-              navigation.pushNamed('/profile');
+              navigation.pushNamed(profileRoute);
               break;
           }
         },
