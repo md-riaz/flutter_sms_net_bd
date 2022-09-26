@@ -23,6 +23,8 @@ class _AppDrawerState extends State<AppDrawer> {
     final prefs = await SharedPreferences.getInstance();
 
     final bool isAdmin = prefs.getString('userGroup') == 'Admin';
+    final bool isManager = prefs.getString('userGroup') == 'Manager';
+
     final menu = {
       dashboardRoute: {
         'title': const Text('Dashboard'),
@@ -49,7 +51,7 @@ class _AppDrawerState extends State<AppDrawer> {
         'icon': const Icon(Icons.person),
       },
     };
-    if (!isAdmin) {
+    if (!isAdmin || !isManager) {
       menu.remove(monitorRoute);
     }
 
