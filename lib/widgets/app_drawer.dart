@@ -51,7 +51,7 @@ class _AppDrawerState extends State<AppDrawer> {
         'icon': const Icon(Icons.person),
       },
     };
-    if (!isAdmin || !isManager) {
+    if (!isAdmin && !isManager) {
       menu.remove(monitorRoute);
     }
 
