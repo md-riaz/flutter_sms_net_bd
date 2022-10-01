@@ -162,9 +162,12 @@ Future<Map<String, dynamic>> sendMessage({
   Map<String, dynamic> body = {
     'to': phone,
     'msg': message,
-    'sender_id': senderID,
     'schedule': schedule ?? '',
   };
+
+  if (senderID != null) {
+    body['sender_id'] = senderID;
+  }
 
   final response = await sendRequest(
     context: context,
