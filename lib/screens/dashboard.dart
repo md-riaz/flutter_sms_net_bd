@@ -459,7 +459,7 @@ class _QuickMsgState extends State<QuickMsg> {
                           width: 16,
                           height: 16,
                           child: CircularProgressIndicator(
-                            color: Colors.teal,
+                            color: Colors.white,
                           ),
                         )
                       : const Text('Send',
